@@ -1,5 +1,15 @@
+// /**
+//  * Sample React Native App
+//  * https://github.com/facebook/react-native
+//  *
+//  * @format
+//  * @flow
+//  */
+
 import React, { Component } from 'react';
 import {
+  ActivityIndicator,
+  TextInput,
   StyleSheet, // CSS-like styles
   Text,
   TouchableOpacity,
@@ -8,12 +18,32 @@ import {
   Linking // Open a URL with the default browser app
 } from 'react-native';
 import { RNCamera } from 'react-native-camera'; // https://github.com/react-native-community/react-native-camera
+import Dialog from "react-native-dialog";
 
 export default class BadInstagramCloneApp extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      host: '',
+      showDialog: false,
+      showInput: true,
+      dialogDescription: '',
+      dialogTitle: 'Specify Host',
+
+    }
+  }
+
   render() {
     return (
       // All this just creates the camera view and button, taken from https://github.com/react-native-community/react-native-camera/blob/master/docs/RNCamera.md
       <View style={styles.container}>
+        <Dialog.Container visible={ this.state.showDialog }>
+          <Dialog.Title>{ this.state.dialogTitle }</Dialog.Title>
+          <Dialog.Description>{ this.state.dialogDescription }</Dialog.Description>
+          { this.state.showInput ? <Dialog.Input underlineColorAndroid={'black'} onChangeText={ text => this.setState({ host: text }) }>{ this.state.host } </Dialog.Input> : undefined }
+          <Dialog.Button label="Close" onPress={ this.closeDialog.bind(this) } />
+          { this.state.showInput ? <Dialog.Button label="Upload" onPress={ this.submitDialog.bind(this) } /> : undefined }
+        </Dialog.Container>
         <RNCamera
             ref={ref => {
               this.camera = ref;
@@ -29,14 +59,31 @@ export default class BadInstagramCloneApp extends Component {
         />
         <View style={{flex: 0, flexDirection: 'row', justifyContent: 'center',}}>
         <TouchableOpacity
-            onPress={this.takePicture.bind(this)}
+            onPress={ this.cameraClick.bind(this) }
             style = {styles.capture}
         >
-            <Text style={{fontSize: 14}}> SNAP </Text>
+            <Text style={{fontSize: 14}}> SNAP </Text>        
         </TouchableOpacity>
         </View>
       </View>
     );
+  }
+
+  cameraClick = function () {
+    this.setState({ dialogTitle: 'Specify Host', showDialog: true, showInput: true, dialogDescription: '' })
+  }
+
+  showError = function (message) {
+    this.setState({ dialogTitle: 'Error', showDialog: true, showInput: false, dialogDescription: message })
+  }
+
+  closeDialog = function () {
+    this.setState({ showDialog: false })
+  }
+
+  submitDialog = function () {
+    this.closeDialog()
+    this.takePicture()
   }
 
   takePicture = async function() {
@@ -55,14 +102,15 @@ export default class BadInstagramCloneApp extends Component {
       await this.handleLinkResponse('https://www.google.com')
     } catch (err) {
       console.error(err)
+      this.showError('Unable to upload image:' + err.message)
     }
   }
 
   uploadImage = async function(dataURI) { // dataURI is the file:// path to the image in the app's cache
-    console.log('Uploading image to server...')
+    console.log('Uploading image to server at ' + this.state.host)
     const formData = new FormData()
     formData.append('photo', { uri: dataURI, type: 'image/jpeg', name: 'testPhotoName' })
-    const res = await fetch('http://192.168.1.14:5000', { method: 'POST', body: formData })
+    const res = await fetch(this.state.host, { method: 'POST', body: formData })
     // If this is sent to a python flask server, then receive the request as such:
     //       file = request.files['photo']
     //       file.save('./test.jpg')
