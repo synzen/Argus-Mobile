@@ -44,7 +44,7 @@ export default class BadInstagramCloneApp extends Component {
           { this.state.showInput ? <Dialog.Input 
             autoCapitalize='none'
             autoCorrect={ false }
-            keyboardType='numeric'
+            // keyboardType='numeric'
             underlineColorAndroid={'black'} 
             onChangeText={ text => this.setState({ host: text }) }>{ this.state.host }</Dialog.Input> : undefined }
           <Dialog.Button label="Close" onPress={ this.closeDialog.bind(this) } />
