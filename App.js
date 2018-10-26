@@ -23,11 +23,12 @@ import Dialog from "react-native-dialog";
 export default class BadInstagramCloneApp extends Component {
   constructor(props) {
     super(props)
+    this.SPECIFY_HOST_DESCRIPTION = 'http:// is automatically added at the beginning. Only enter the ip and port.'
     this.state = {
       host: '',
       showDialog: false,
       showInput: true,
-      dialogDescription: '',
+      dialogDescription: this.SPECIFY_HOST_DESCRIPTION,
       dialogTitle: 'Specify Host',
 
     }
@@ -40,7 +41,12 @@ export default class BadInstagramCloneApp extends Component {
         <Dialog.Container visible={ this.state.showDialog }>
           <Dialog.Title>{ this.state.dialogTitle }</Dialog.Title>
           <Dialog.Description>{ this.state.dialogDescription }</Dialog.Description>
-          { this.state.showInput ? <Dialog.Input underlineColorAndroid={'black'} onChangeText={ text => this.setState({ host: text }) }>{ this.state.host } </Dialog.Input> : undefined }
+          { this.state.showInput ? <Dialog.Input 
+            autoCapitalize='none'
+            autoCorrect={ false }
+            keyboardType='numeric'
+            underlineColorAndroid={'black'} 
+            onChangeText={ text => this.setState({ host: text }) }>{ this.state.host }</Dialog.Input> : undefined }
           <Dialog.Button label="Close" onPress={ this.closeDialog.bind(this) } />
           { this.state.showInput ? <Dialog.Button label="Upload" onPress={ this.submitDialog.bind(this) } /> : undefined }
         </Dialog.Container>
@@ -70,7 +76,7 @@ export default class BadInstagramCloneApp extends Component {
   }
 
   cameraClick = function () {
-    this.setState({ dialogTitle: 'Specify Host', showDialog: true, showInput: true, dialogDescription: '' })
+    this.setState({ dialogTitle: 'Specify Host', showDialog: true, showInput: true, dialogDescription: this.SPECIFY_HOST_DESCRIPTION })
   }
 
   showError = function (message) {
@@ -110,8 +116,8 @@ export default class BadInstagramCloneApp extends Component {
     console.log('Uploading image to server at ' + this.state.host)
     const formData = new FormData()
     formData.append('photo', { uri: dataURI, type: 'image/jpeg', name: 'testPhotoName' })
-    const res = await fetch(this.state.host, { method: 'POST', body: formData })
-    // If this is sent to a python flask server, then receive the request as such:
+    const res = await fetch('http://' + this.state.host.trim(), { method: 'POST', body: formData })
+    // If this is sent to a python flask server, then receive the POST(! not GET!) request as such:
     //       file = request.files['photo']
     //       file.save('./test.jpg')
 
@@ -121,7 +127,7 @@ export default class BadInstagramCloneApp extends Component {
   }
 
   handleLinkResponse = async function (url) { // Should be the wikipedia link
-    Alert.alert('What do I do now?', 'Select an option?', [
+    Alert.alert('Successfully Uploaded', 'Select an option', [
       { text: 'Open Wikipedia', onPress: () => Linking.canOpenURL(url).then(able => able ? Linking.openURL(url) : Promise.reject()).catch(console.log) },
       { text: 'Cancel', style: 'cancel' }
     ])
