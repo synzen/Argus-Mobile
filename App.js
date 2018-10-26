@@ -94,15 +94,18 @@ export default class BadInstagramCloneApp extends Component {
 
   takePicture = async function() {
     console.log('Picture taken')
+    Alert.alert('About to take pic (Step 1/4)')
     if (!this.camera) return console.log(new Error('Unable to take picture because this.camera is undefined'))
     const options = { quality: 0.5, base64: true };
     try {
       // Take the picture
       const data = await this.camera.takePictureAsync(options)
+      Alert.alert('Picture taken, uploading now... (Step 2/4)')
       console.log('Picture saved to cache at', data.uri)
 
       // Upload it
       const response = await this.uploadImage(data.uri)
+      Alert.alert('Successfully uploaded img, handling link response... (Step 3/4)')
 
       // Prompt the user for action with the response
       await this.handleLinkResponse('https://www.google.com')
@@ -127,7 +130,7 @@ export default class BadInstagramCloneApp extends Component {
   }
 
   handleLinkResponse = async function (url) { // Should be the wikipedia link
-    Alert.alert('Successfully Uploaded', 'Select an option', [
+    Alert.alert('Successfully Uploaded (Step 4/4)', 'Select an option', [
       { text: 'Open Wikipedia', onPress: () => Linking.canOpenURL(url).then(able => able ? Linking.openURL(url) : Promise.reject()).catch(console.log) },
       { text: 'Cancel', style: 'cancel' }
     ])
