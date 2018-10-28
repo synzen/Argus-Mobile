@@ -138,6 +138,8 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-fast-image')
+    compile project(':react-native-fs')
     compile project(':react-native-vector-icons')
     compile project(':react-native-camera')
     implementation fileTree(dir: "libs", include: ["*.jar"])

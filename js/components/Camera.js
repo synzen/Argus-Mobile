@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { RNCamera } from 'react-native-camera'; // https://github.com/react-native-community/react-native-camera
 import Spinner from 'react-native-loading-spinner-overlay'
-
+import RNFS from 'react-native-fs'
 
 class Camera extends Component {
   static navigationOptions = ({navigation}) => { 
