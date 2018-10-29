@@ -2,22 +2,16 @@ import React, { Component } from 'react'
 import CameraDefaults from '../constants/camera.js'
 import { Alert, AsyncStorage, Picker } from 'react-native'
 // import Dialog from "react-native-dialog";
-import FastImage from 'react-native-fast-image'
-import RNFS from 'react-native-fs'
 import { material } from 'react-native-typography'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import { NavigationActions } from 'react-navigation';
-import keyHolder from '../constants/keys.js'
 import Dialog, { SlideAnimation } from 'react-native-popup-dialog';
-
 import {
     Text,
     TouchableHighlight,
     View,
-    TextInput,
     ScrollView,
     StyleSheet,
-  } from 'react-native';
+} from 'react-native';
 
 class SettingsItem extends Component {
   constructor(props) {

@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import {
   StyleSheet, // CSS-like styles
-  Text,
   Easing,
   Animated,
   TouchableOpacity,
@@ -13,7 +12,6 @@ import {
 import { RNCamera } from 'react-native-camera'
 import Spinner from 'react-native-loading-spinner-overlay'
 import Icon from 'react-native-vector-icons/Entypo'
-import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
 import keyHolder from '../constants/keys.js'
 import CameraDefaults from '../constants/camera.js'
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity)

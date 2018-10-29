@@ -1,15 +1,16 @@
 import React, { Component } from 'react'
-import { Alert, AsyncStorage } from 'react-native'
 import Dialog from "react-native-dialog";
 import FastImage from 'react-native-fast-image'
 import RNFS from 'react-native-fs'
-
 import {
+    View,
     Text,
     TouchableOpacity,
-    ScrollView,
     StyleSheet,
-  } from 'react-native';
+    AsyncStorage,
+    Alert,
+    FlatList
+} from 'react-native';
 
 class HistoryItem extends Component {
   constructor(props) {
@@ -23,7 +24,7 @@ class HistoryItem extends Component {
     Alert.alert('Failed to Process', this.props.error || 'Unknown Error')
   }
 
-  _boolToElem = b => b === true ? <Text style={styles.successColor}>Successfully Processed</Text> : b === false ? <Text style={styles.dangerColor}>Failed to Process</Text> : <Text>Unknown</Text>
+  _boolToElem = b => b === true ? <Text style={styles.successColor}>Successfully Processed</Text> : <Text style={styles.dangerColor}>Failed to Process</Text>
 
   render () {
     // console.log(this.props)
@@ -85,17 +86,22 @@ export default class History extends Component {
     }
 
     render() {
-      return (
-        <ScrollView style={ styles.container }>
-          {
-            this.state.items.length > 0 ? 
-            this.state.items.map(item => <HistoryItem onPress={ () => this.onPress(item) } key={item.name} { ...item} ></HistoryItem>) 
+      return this.state.items.length > 0 ? 
+            <FlatList
+              style={styles.container}
+              data={this.state.items}
+              renderItem={ ( {item} ) => 
+                <View style={{marginBottom: 40}}><HistoryItem onPress={ () => this.onPress(item) } key={item.name} { ...item} ></HistoryItem></View>
+              }
+              keyExtractor={ item => item.name }
+            />
+            // this.state.items.map(item => <HistoryItem onPress={ () => this.onPress(item) } key={item.name} { ...item} ></HistoryItem>) 
             :
-            <Text style={styles.emptyText}>You have no recent history.</Text>
+            (<View styles={styles.container}>
+              <Text style={styles.emptyText}>You have no recent history.</Text>
+            </View>)
 
-          }
-        </ScrollView>
-      );
+      
     }
 
   }
@@ -110,9 +116,9 @@ const styles = StyleSheet.create({
   },  
   container: {
     flex: 1,
-    flexDirection: 'column',
-    marginTop: 20,
-    marginBottom: 20
+    // flexDirection: 'column',
+    paddingTop: 20,
+    paddingBottom: 50
   },
   historyImage: {
     width: 75,
@@ -127,7 +133,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     minHeight: 100,
-    marginVertical: 7,
+    marginVertical: 0,
     marginHorizontal: 20,
     backgroundColor: '#ffffff',
     shadowColor: '#000',

@@ -4,7 +4,7 @@ import {ScrollView, Text, View, StyleSheet, TouchableOpacity, Animated, Easing} 
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
-import { material, systemWeights } from 'react-native-typography'
+import { material } from 'react-native-typography'
 const AnimatedIcon = Animated.createAnimatedComponent(EntypoIcon)
 
 export default class SideMenu extends Component {
@@ -65,9 +65,6 @@ export default class SideMenu extends Component {
               <MaterialIcon name='feedback' size={30} style={styles.navIcon}/><Text>Send Feedback</Text>
             </TouchableOpacity>
         </ScrollView>
-        {/* <View>
-          <Text>This is my fixed footer</Text>
-        </View> */}
       </View>
     );
   }

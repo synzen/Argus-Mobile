@@ -8,10 +8,9 @@ import {
     Linking,
     Alert,
     Button
-  } from 'react-native';
-  import FastImage from 'react-native-fast-image'
-  import { material, systemWeights } from 'react-native-typography'
-  import Icon from 'react-native-vector-icons/Feather'
+} from 'react-native';
+import FastImage from 'react-native-fast-image'
+import { material, systemWeights } from 'react-native-typography'
 
 const win = Dimensions.get('window')
 
