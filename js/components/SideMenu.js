@@ -4,31 +4,37 @@ import {ScrollView, Text, View, StyleSheet, TouchableOpacity, Animated, Easing} 
 import EntypoIcon from 'react-native-vector-icons/Entypo';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcon from 'react-native-vector-icons/MaterialCommunityIcons'
-import { material } from 'react-native-typography'
+import { material, systemWeights } from 'react-native-typography'
 const AnimatedIcon = Animated.createAnimatedComponent(EntypoIcon)
 
 export default class SideMenu extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      fadeAnim: new Animated.Value(1)
+      scaleAnim: new Animated.Value(1),
+      current: 0
     }
   }
 
   componentDidMount = function () {
     // Animated.timing(
-    //   this.state.fadeAnim,
+    //   this.state.scaleAnim,
     //   { toValue: 1 }
     // ).start();
   }
 
-  bounceVisibility = function () {
+  bounceVisibility = () => {
     // console.log('bbb')
     Animated.sequence([
-      Animated.timing(this.state.fadeAnim, {toValue: 0.8, duration: 150, easing: Easing.elastic()}),
-      Animated.timing(this.state.fadeAnim, {toValue: 1.15, duration: 200, easing: Easing.elastic()}),
-      Animated.timing(this.state.fadeAnim, {toValue: 1, duration: 200})
+      Animated.timing(this.state.scaleAnim, {toValue: 0.8, duration: 150, easing: Easing.elastic()}),
+      Animated.timing(this.state.scaleAnim, {toValue: 1.15, duration: 200, easing: Easing.elastic()}),
+      Animated.timing(this.state.scaleAnim, {toValue: 1, duration: 200})
     ]).start()
+  }
+
+  navigate = (screenName, current) => {
+    this.props.navigation.navigate(screenName)
+    this.setState({ current })
   }
 
   render () {
@@ -37,10 +43,10 @@ export default class SideMenu extends Component {
         <ScrollView>
             <View style={{ ...styles.logoContainer}}>
                 <Text style={ { ...material.headlineWhite, ...systemWeights.light }}>ARGUS</Text>
-                <AnimatedIcon onPress={ this.bounceVisibility.bind(this) } style={{
+                <AnimatedIcon onPress={ this.bounceVisibility } style={{
                   transform: [
-                    { scaleX: this.state.fadeAnim },
-                    { scaleY: this.state.fadeAnim }
+                    { scaleX: this.state.scaleAnim },
+                    { scaleY: this.state.scaleAnim }
                     ]}} name="eye" size={140} color='white'/>
             </View>
             <TouchableOpacity style={styles.navItem} onPress={ () => { this.props.navigation.navigate('Login') } }>
@@ -48,18 +54,22 @@ export default class SideMenu extends Component {
             </TouchableOpacity>
             <View style={styles.border}></View>
 
-             <TouchableOpacity style={styles.navItem} onPress={ () => this.props.navigation.navigate('HomeScreen') }>
-              <MaterialIcon name='home' size={30} style={styles.navIcon}/><Text>Home</Text>
+            <TouchableOpacity style={styles.navItem} onPress={ () => this.navigate('HomeScreen', 0) }>
+              <MaterialIcon name='home' size={30} style={styles.navIcon}/><Text style={ this.state.current === 0 ? { fontWeight: 'bold' } : {} }>Home</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.navItem} onPress={ () => this.props.navigation.navigate('CameraScreen') }>
-              <MaterialIcon name='linked-camera' size={30} style={styles.navIcon}/><Text>Camera</Text>
+
+            <TouchableOpacity style={styles.navItem} onPress={ () => this.navigate('CameraScreen', 1) }>
+              <MaterialIcon name='linked-camera' size={30} style={styles.navIcon}/><Text style={ this.state.current === 1 ? { fontWeight: 'bold' } : {} }>Camera</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.navItem} onPress={ () => this.props.navigation.navigate('HistoryScreen') }>
-              <MaterialIcon name='history' size={30} style={styles.navIcon}/><Text>History</Text>
+
+            <TouchableOpacity style={styles.navItem} onPress={ () => this.navigate('HistoryScreen', 2) }>
+              <MaterialIcon name='history' size={30} style={styles.navIcon}/><Text style={ this.state.current === 2 ? { fontWeight: 'bold' } : {} }>History</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.navItem} onPress={ () => this.props.navigation.navigate('SettingsScreen') }>
-              <MaterialIcon name='settings' size={30} style={styles.navIcon}/><Text>Settings</Text>
+
+            <TouchableOpacity style={styles.navItem} onPress={ () => this.navigate('SettingsScreen', 3) }>
+              <MaterialIcon name='settings' size={30} style={styles.navIcon}/><Text style={ this.state.current === 3 ? { fontWeight: 'bold' } : {} }>Settings</Text>
             </TouchableOpacity>
+
             <View style={styles.border}></View>
             <TouchableOpacity style={styles.navItem} onPress={ () => {} }>
               <MaterialIcon name='feedback' size={30} style={styles.navIcon}/><Text>Send Feedback</Text>
@@ -108,6 +118,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 15,
-        paddingVertical: 10
+        paddingVertical: 10,
     }
 })

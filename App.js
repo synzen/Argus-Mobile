@@ -9,6 +9,7 @@ import Login from './js/components/Login.js'
 import Icon from 'react-native-vector-icons/Ionicons';
 import { StyleSheet } from 'react-native'
 import React, { Component } from 'react';
+import { fromLeft, zoomIn } from 'react-navigation-transitions'
 
 const homeNavigator = createStackNavigator({
   HomeScreen: {
@@ -72,14 +73,22 @@ export default createStackNavigator({
     }
   },
   Login: {
-    screen: Login
+    screen: Login,
+    navigationOptions: {
+      gesturesEnabled: true,
+      gestureDirection: 'inverted',
+      gestureResponseDistance: 50
+    }
   }
 }, {
+  transitionConfig: () => fromLeft(),
   initialRouteName: 'Drawer'
 })
 
 const styles = StyleSheet.create({
   headerLeftButton: {
-    marginLeft: 20
+    paddingLeft: 20,
+    flex: 1,
+    paddingVertical: 12
   }
 })
