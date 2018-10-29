@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import Dialog from "react-native-dialog";
+import keyHolder from '../constants/keys.js'
 import {
     Text,
     TouchableOpacity,
@@ -22,8 +23,14 @@ export default class HomeScreen extends Component {
         this.state = {
             showDialog: false,
             unsavedText: '',
-            host: ''
+            host: '',
+            gunky: 'original'
         }
+    }
+
+    componentDidMount = function () {
+        const navState = this.props.navigation.state
+        keyHolder.set(navState.routeName, navState.key)
     }
 
     render() {
