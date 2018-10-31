@@ -10,7 +10,7 @@ import {
     AsyncStorage,
     Alert
   } from 'react-native';
-import ImagePicker from 'react-native-image-picker';
+import colorConstants from '../constants/colors';
 
 export default class HomeScreen extends Component {
     static navigationOptions = {
@@ -57,17 +57,6 @@ export default class HomeScreen extends Component {
                     onPress={this.showDialog.bind(this)}
                     style={styles.button}
                 ><Text>Change Host</Text></TouchableOpacity>
-                <TouchableOpacity
-                    onPress={() =>
-                        // navigate('CameraScreen', { host: this.state.host })
-                        ImagePicker.launchCamera({ title: 'mytitle' }, (response) => {
-                            console.log('call back')
-                            console.log(response)
-                            // Same code as in above section!
-                          })
-                    }
-                    style={styles.button}
-                ><Text>Camera</Text></TouchableOpacity>
             </View>
         </View>
       );
@@ -95,7 +84,7 @@ const styles = StyleSheet.create({
     textAlignCenter: { textAlign: 'center' },
     button: {
         alignItems: 'center',
-        backgroundColor: '#DDDDDD',
+        backgroundColor: colorConstants.headerBackgroundColorLight,
         padding: 10,
         margin: 10
     }, 

@@ -123,7 +123,7 @@ const drawerScreens = createDrawerNavigator({
   Settings: settingsNavigator
 }, {
   contentComponent: SideMenu,
-  initialRouteName: 'Upload'
+  initialRouteName: 'Home'
 })
 
 
