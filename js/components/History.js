@@ -13,7 +13,8 @@ import {
   LayoutAnimation,
   Image
 } from 'react-native';
-import { Button } from 'react-native-elements'
+import colorConstants from '../constants/colors.js'
+import { Button, Card } from 'react-native-elements'
 
 class HistoryItem extends Component {
   constructor(props) {
@@ -208,7 +209,7 @@ const styles = StyleSheet.create({
     minHeight: 100,
     marginVertical: 0,
     marginHorizontal: 20,
-    backgroundColor: '#ffffff',
+    backgroundColor: colorConstants.headerBackgroundColorVeryVeryLight,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,

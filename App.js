@@ -24,6 +24,8 @@ const homeNavigator = createStackNavigator({
         headerTintColor: colorConstants.headerTextColor
       }
   }}
+}, {
+  cardStyle: { backgroundColor: colorConstants.headerBackgroundColorVeryLight }
 })
 
 // const cameraNavigator = createStackNavigator({
@@ -65,6 +67,8 @@ const uploadNavigator = createStackNavigator({
         headerTintColor: colorConstants.headerTextColor
       }
   }}
+}, {
+  cardStyle: { backgroundColor: colorConstants.headerBackgroundColorVeryLight }
 })
 
 const historyNavigator = createStackNavigator({
@@ -93,6 +97,8 @@ const historyNavigator = createStackNavigator({
         headerTintColor: colorConstants.headerTextColor
       }
   }}
+}, {
+  cardStyle: { backgroundColor: colorConstants.headerBackgroundColorVeryLight }
 })
 
 const settingsNavigator = createStackNavigator({
@@ -105,6 +111,8 @@ const settingsNavigator = createStackNavigator({
         headerTintColor: colorConstants.headerTextColor
       }
   }}
+}, {
+  cardStyle: { backgroundColor: colorConstants.headerBackgroundColorVeryLight }
 })
 
 const drawerScreens = createDrawerNavigator({
@@ -151,5 +159,8 @@ const styles = StyleSheet.create({
   },
   headerStyle: {
     backgroundColor: colorConstants.headerBackgroundColor,
+  },
+  cardStyle: {
+    backgroundColor: colorConstants.headerBackgroundColorVeryLight
   }
 })
