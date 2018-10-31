@@ -10,6 +10,7 @@ import {
     AsyncStorage,
     Alert
   } from 'react-native';
+import ImagePicker from 'react-native-image-picker';
 
 export default class HomeScreen extends Component {
     static navigationOptions = {
@@ -59,7 +60,11 @@ export default class HomeScreen extends Component {
                 <TouchableOpacity
                     onPress={() =>
                         // navigate('CameraScreen', { host: this.state.host })
-                        navigate('CameraScreen')
+                        ImagePicker.launchCamera({ title: 'mytitle' }, (response) => {
+                            console.log('call back')
+                            console.log(response)
+                            // Same code as in above section!
+                          })
                     }
                     style={styles.button}
                 ><Text>Camera</Text></TouchableOpacity>

@@ -6,7 +6,10 @@ import History from './js/components/History'
 import Settings from './js/components/Settings.js'
 import Details from './js/components/Details.js'
 import Login from './js/components/Login.js'
+import Upload from './js/components/Upload.js'
+import ViewImage from './js/components/ViewImage.js'
 import Icon from 'react-native-vector-icons/Ionicons';
+import colorConstants from './js/constants/colors'
 import { StyleSheet } from 'react-native'
 import React, { Component } from 'react';
 import { fromLeft, zoomIn } from 'react-navigation-transitions'
@@ -16,17 +19,50 @@ const homeNavigator = createStackNavigator({
     screen: HomeScreen,
     navigationOptions: ({ navigation }) => { 
       return {
-        headerLeft: (<Icon name="ios-menu" size={30} onPress={() => navigation.toggleDrawer()} color="gray" style={styles.headerLeftButton} />)
+        headerLeft: (<Icon name="ios-menu" size={30} onPress={() => navigation.toggleDrawer()} color={colorConstants.headerTextColor} style={styles.headerLeftButton} />),
+        headerStyle: styles.headerStyle,
+        headerTintColor: colorConstants.headerTextColor
       }
   }}
 })
 
-const cameraNavigator = createStackNavigator({
-  CameraScreen: {
+// const cameraNavigator = createStackNavigator({
+//   CameraScreen: {
+//     screen: Camera,
+//     navigationOptions: ({ navigation }) => { 
+//       return {
+//         headerLeft: (<Icon name="ios-menu" size={30} onPress={() => navigation.toggleDrawer()} color={colorConstants.headerTextColor} style={styles.headerLeftButton} />),
+//         headerStyle: styles.headerStyle,
+//         headerTintColor: colorConstants.headerTextColor
+//       }
+//   }}
+// })
+
+const uploadNavigator = createStackNavigator({
+  UploadScreen: {
+    screen: Upload,
+    navigationOptions: ({ navigation }) => {
+      return {
+        headerLeft: (<Icon name="ios-menu" size={30} onPress={() => navigation.toggleDrawer()} color={colorConstants.headerTextColor} style={styles.headerLeftButton} />),
+        headerStyle: styles.headerStyle,
+        headerTintColor: colorConstants.headerTextColor
+      }
+  }},
+    CameraScreen: {
     screen: Camera,
     navigationOptions: ({ navigation }) => { 
       return {
-        headerLeft: (<Icon name="ios-menu" size={30} onPress={() => navigation.toggleDrawer()} color="white" style={styles.headerLeftButton} />)
+        // headerLeft: (<Icon name="ios-menu" size={30} onPress={() => navigation.toggleDrawer()} color={colorConstants.headerTextColor} style={styles.headerLeftButton} />),
+        // headerStyle: styles.headerStyle,
+        headerTintColor: colorConstants.headerTextColor
+      }
+  }},
+  ViewImageFromUploadScreen: {
+    screen: ViewImage,
+    navigationOptions: ({ navigation }) => { 
+      return {
+        headerStyle: styles.headerStyle,
+        headerTintColor: colorConstants.headerTextColor
       }
   }}
 })
@@ -36,12 +72,27 @@ const historyNavigator = createStackNavigator({
     screen: History,
     navigationOptions: ({ navigation }) => { 
       return {
-        headerLeft: (<Icon name="ios-menu" size={30} onPress={() => navigation.toggleDrawer()} color="gray" style={styles.headerLeftButton} />)
+        headerLeft: (<Icon name="ios-menu" size={30} onPress={() => navigation.toggleDrawer()} color={colorConstants.headerTextColor} style={styles.headerLeftButton} />),
+        headerStyle: styles.headerStyle,
+        headerTintColor: colorConstants.headerTextColor
       }
   }},
   DetailsScreen: {
-    screen: Details
-  }
+    screen: Details,
+    navigationOptions: ({ navigation }) => { 
+      return {
+        headerStyle: styles.headerStyle,
+        headerTintColor: colorConstants.headerTextColor
+      }
+  }},
+  ViewImageScreen: {
+    screen: ViewImage,
+    navigationOptions: ({ navigation }) => { 
+      return {
+        headerStyle: styles.headerStyle,
+        headerTintColor: colorConstants.headerTextColor
+      }
+  }}
 })
 
 const settingsNavigator = createStackNavigator({
@@ -49,19 +100,22 @@ const settingsNavigator = createStackNavigator({
     screen: Settings,
     navigationOptions: ({ navigation }) => { 
       return {
-        headerLeft: (<Icon name="ios-menu" size={30} onPress={() => navigation.toggleDrawer()} color="gray" style={styles.headerLeftButton} />)
+        headerLeft: (<Icon name="ios-menu" size={30} onPress={() => navigation.toggleDrawer()} color={colorConstants.headerTextColor} style={styles.headerLeftButton} />),
+        headerStyle: styles.headerStyle,
+        headerTintColor: colorConstants.headerTextColor
       }
   }}
 })
 
 const drawerScreens = createDrawerNavigator({
   Home: homeNavigator,
-  Camera: cameraNavigator,
+  Upload: uploadNavigator,
+  // Camera: cameraNavigator,
   History: historyNavigator,
   Settings: settingsNavigator
 }, {
   contentComponent: SideMenu,
-  initialRouteName: 'Home'
+  initialRouteName: 'Upload'
 })
 
 
@@ -74,10 +128,14 @@ export default createStackNavigator({
   },
   Login: {
     screen: Login,
-    navigationOptions: {
-      gesturesEnabled: true,
-      gestureDirection: 'inverted',
-      gestureResponseDistance: 50
+    navigationOptions: () => {
+      return {
+        gesturesEnabled: true,
+        gestureDirection: 'inverted',
+        gestureResponseDistance: 50,
+        headerStyle: styles.headerStyle,
+        headerTintColor: colorConstants.headerTextColor
+      }
     }
   }
 }, {
@@ -90,5 +148,8 @@ const styles = StyleSheet.create({
     paddingLeft: 20,
     flex: 1,
     paddingVertical: 12
+  },
+  headerStyle: {
+    backgroundColor: colorConstants.headerBackgroundColor,
   }
 })

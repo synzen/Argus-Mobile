@@ -4,7 +4,7 @@ import { Alert, AsyncStorage, Picker } from 'react-native'
 // import Dialog from "react-native-dialog";
 import { material } from 'react-native-typography'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import Dialog, { SlideAnimation } from 'react-native-popup-dialog';
+import Dialog, { ScaleAnimation } from 'react-native-popup-dialog';
 import {
     Text,
     TouchableHighlight,
@@ -121,7 +121,7 @@ export default class Settings extends Component {
             <SettingsItem icon='server' title='Host URI' value={this.state.host}></SettingsItem>
             <Text style={ styles.category }>Camera</Text>
             <SettingsItem icon='flash' title='Flash' value={this._capitalize(this.state.flash)} onPress={ () => this.setState({ dialog: true }) }>
-              <Dialog visible={this.state.dialog} onTouchOutside={() => this.setState({dialog: false})} rounded={true} dialogStyle={styles.shadow} dialogAnimation={new SlideAnimation()} >
+              <Dialog visible={this.state.dialog} onTouchOutside={() => this.setState({dialog: false})} rounded={true} dialogStyle={styles.shadow} dialogAnimation={new ScaleAnimation()} >
                 <View>
                   <List items={[{
                     text: 'Auto', 
@@ -141,7 +141,7 @@ export default class Settings extends Component {
               </Dialog>
             </SettingsItem>
             <SettingsItem icon='image-filter-center-focus' title='Auto Focus' value={this._capitalize(this.state.focus)} onPress={ () => this.setState({ focusDialog: true }) } >
-              <Dialog visible={this.state.focusDialog} onTouchOutside={() => this.setState({focusDialog: false})} rounded={true} dialogStyle={styles.shadow} dialogAnimation={new SlideAnimation()} >
+              <Dialog visible={this.state.focusDialog} onTouchOutside={() => this.setState({focusDialog: false})} rounded={true} dialogStyle={styles.shadow} dialogAnimation={new ScaleAnimation()} >
                 <View>
                   <List items={[{
                     text: 'On',
@@ -155,7 +155,7 @@ export default class Settings extends Component {
               </Dialog>
             </SettingsItem>
             <SettingsItem icon='camera-switch' title='Switch Camera' value={this._capitalize(this.state.camera)} onPress={ () => this.setState({ cameraDialog: true }) } >
-            <Dialog visible={this.state.cameraDialog} onTouchOutside={() => this.setState({cameraDialog: false})} rounded={true} dialogStyle={styles.shadow} dialogAnimation={new SlideAnimation()} >
+            <Dialog visible={this.state.cameraDialog} onTouchOutside={() => this.setState({cameraDialog: false})} rounded={true} dialogStyle={styles.shadow} dialogAnimation={new ScaleAnimation()} >
                 <View>
                   <List items={[{
                     text: 'Front',

@@ -13,7 +13,10 @@ import { RNCamera } from 'react-native-camera'
 import Spinner from 'react-native-loading-spinner-overlay'
 import Icon from 'react-native-vector-icons/Entypo'
 import keyHolder from '../constants/keys.js'
+import colorConstants from '../constants/colors.js'
 import CameraDefaults from '../constants/camera.js'
+import { NavigationActions } from 'react-navigation';
+
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity)
 
 class Camera extends Component {
@@ -24,12 +27,15 @@ class Camera extends Component {
 
   constructor(props) {
     super(props)
+    this._lastId = ''
+
     this.state = {
       processing: false,
       eyeScale: new Animated.Value(1),
       flash: RNCamera.Constants.FlashMode[CameraDefaults.flash],
       focus: RNCamera.Constants.AutoFocus[CameraDefaults.focus],
-      camera: RNCamera.Constants.Type[CameraDefaults.camera]
+      camera: RNCamera.Constants.Type[CameraDefaults.camera],
+      mounted: false
     }
     AsyncStorage.multiGet(['camera.flash', 'camera.focus', 'camera.camera']).then(vals => {
       vals.map(item => {
@@ -44,13 +50,21 @@ class Camera extends Component {
   componentDidMount = function () {
     const navState = this.props.navigation.state
     if (!keyHolder.has(navState.routeName)) keyHolder.set(navState.routeName, navState.key)
+    setTimeout(() => this.setState({ mounted: true }), 200) // Wait for the screen to finish its animation
+  }
+
+  _generateId = () => {
+    const S4 = () => {
+      return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+    }
+    const id = 'photo.' + (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
+    return id
   }
 
   render() {
     return (
-      // All this just creates the camera view and button, taken from https://github.com/react-native-community/react-native-camera/blob/master/docs/RNCamera.md
       <View style={styles.container}>
-        <RNCamera
+        { this.state.mounted ? <RNCamera
             ref={ref => {
               this.camera = ref;
             }}
@@ -62,22 +76,26 @@ class Camera extends Component {
             onGoogleVisionBarcodesDetected={({ barcodes }) => {
               console.log(barcodes)
             }}
+            
         >
+                <AnimatedTouchableOpacity style={ { ...styles.capture, 
+          transform: [
+            { scaleX: this.state.eyeScale },
+            { scaleY: this.state.eyeScale }
+          ]}} >
+          <Icon name="eye" size={65} onPress={ this.takePicture.bind(this) } color='white'/>
+        </AnimatedTouchableOpacity>
+        <View style={{flex: 0, bottom: 0, position: 'absolute', opacity: .5, backgroundColor: 'black', right: 0, left: 0, height: 100}} />
 
-        <AnimatedTouchableOpacity style={ { ...styles.capture, 
-        transform: [
-          { scaleX: this.state.eyeScale },
-          { scaleY: this.state.eyeScale }
-        ]}} ><Icon name="eye" size={65} onPress={ this.takePicture.bind(this) } color='white'/></AnimatedTouchableOpacity>
-        <View style={{flex: 0, bottom: 0, position: 'absolute', opacity: .5, backgroundColor: 'black', right: 0, left: 0, height: 100}}>
+        </RNCamera> : undefined }
 
-        </View>
-
-        </RNCamera>
         <Spinner
           visible={this.state.processing}
           textContent={'Processing...'}
           textStyle={{ color: '#FFF' }}
+          overlayColor='rgba(0, 0, 0, 1)'
+          animation='fade'
+          color={colorConstants.headerBackgroundColor}
         />
         {/* <Spinner
           visible={this.state.processing}
@@ -101,36 +119,64 @@ class Camera extends Component {
 
   takePicture = async function() {
     this.bounceIcon()
-    if (!this.camera) return console.log(new Error('Unable to take picture because this.camera is undefined'))
-    const options = { quality: 0.5, base64: true };
+    if (!this.state.mounted) return console.log(new Error('Unable to take picture because this.camera is undefined'))
+    const options = { quality: 0.5, base64: true, doNotSave: true };
     let data
     try {
       // Take the picture
+      console.log('about to take picture')
+      this.setState({ processing: true })
       data = await this.camera.takePictureAsync(options)
       this.camera.pausePreview()
-      console.log('Picture taken')
-      console.log('Picture saved to cache at', data.uri)
 
-      // Upload it
-      this.setState({ processing: true })
-      const response = await this.uploadImage(data.uri)
+      console.log('took picture')
 
-      // Prompt the user for action with the response
-      await this.handleLinkResponse(response)
-      await AsyncStorage.setItem(data.uri, JSON.stringify({ response, success: true }))
+      const setParamsAction = NavigationActions.setParams({
+        params: { imageBase64: data.base64 },
+        key: keyHolder.get('UploadScreen'),
+      });
+      this.props.navigation.dispatch(setParamsAction);
+      console.log('dispatched')
+      this.props.navigation.goBack()
+      console.log('go back')
+
+    //   return
+    //   // Upload it
+    //   this.setState({ processing: true })
+    //   this._lastId = this._generateId()
+
+    //   const response = await this.uploadImage(data.base64)
+
+    //   // Prompt the user for action with the response
+    //   await this.handleLinkResponse(response)
+    //   await AsyncStorage.setItem(this._lastId, JSON.stringify({ response, success: true, base64: data.base64, date: new Date().toString() }))
     } catch (err) {
-      if (data) AsyncStorage.setItem(data.uri, JSON.stringify({ success: false, error: err.message }))
+    //   console.log('here')
+    //   if (data) {
+    //     console.log('setting now for', this._lastId)
+    //     AsyncStorage.setItem(this._lastId, JSON.stringify({ success: false, error: err.message, base64: data.base64, date: new Date().toString() }))
+    //   }
+      Alert.alert('Error', err.message)
       console.error(err)
     }
+    // this.setState({ processing: false })
     this.setState({ processing: false })
     this.camera.resumePreview()
   }
 
-  uploadImage = async function(dataURI) { // dataURI is the file:// path to the image in the app's cache
+  uploadImage = async function(base64) { // dataURI is the file:// path to the image in the app's cache
     const host = await AsyncStorage.getItem('host')
-    const formData = new FormData()
-    formData.append('photo', { uri: dataURI, type: 'image/jpeg', name: 'testPhotoName' })
-    const res = await fetch(host, { method: 'POST', body: formData })
+    console.log('uploading to', host)
+    // const formData = new FormData()
+    // formData.append('photo', { uri: base64, data: base64, type: 'image/jpeg', name: 'testPhotoName' })
+    const res = await fetch(host, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ base64 })
+    })
     // If this is sent to a python flask server, then receive the POST(! not GET!) request as such:
     //       file = request.files['photo']
     //       file.save('./test.jpg')

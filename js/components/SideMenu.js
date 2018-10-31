@@ -26,7 +26,7 @@ export default class SideMenu extends Component {
   bounceVisibility = () => {
     // console.log('bbb')
     Animated.sequence([
-      Animated.timing(this.state.scaleAnim, {toValue: 0.8, duration: 150, easing: Easing.elastic()}),
+      Animated.timing(this.state.scaleAnim, {toValue: 0.8, duration: 100, easing: Easing.elastic()}),
       Animated.timing(this.state.scaleAnim, {toValue: 1.15, duration: 200, easing: Easing.elastic()}),
       Animated.timing(this.state.scaleAnim, {toValue: 1, duration: 200})
     ]).start()
@@ -58,16 +58,20 @@ export default class SideMenu extends Component {
               <MaterialIcon name='home' size={30} style={styles.navIcon}/><Text style={ this.state.current === 0 ? { fontWeight: 'bold' } : {} }>Home</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.navItem} onPress={ () => this.navigate('CameraScreen', 1) }>
-              <MaterialIcon name='linked-camera' size={30} style={styles.navIcon}/><Text style={ this.state.current === 1 ? { fontWeight: 'bold' } : {} }>Camera</Text>
+            <TouchableOpacity style={styles.navItem} onPress={ () => this.navigate('UploadScreen', 1) }>
+              <MaterialIcon name='cloud-upload' size={30} style={styles.navIcon}/><Text style={ this.state.current === 1 ? { fontWeight: 'bold' } : {} }>Upload</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.navItem} onPress={ () => this.navigate('HistoryScreen', 2) }>
-              <MaterialIcon name='history' size={30} style={styles.navIcon}/><Text style={ this.state.current === 2 ? { fontWeight: 'bold' } : {} }>History</Text>
+            {/* <TouchableOpacity style={styles.navItem} onPress={ () => this.navigate('CameraScreen', 2) }>
+              <MaterialIcon name='linked-camera' size={30} style={styles.navIcon}/><Text style={ this.state.current === 2 ? { fontWeight: 'bold' } : {} }>Camera</Text>
+            </TouchableOpacity> */}
+
+            <TouchableOpacity style={styles.navItem} onPress={ () => this.navigate('HistoryScreen', 3) }>
+              <MaterialIcon name='history' size={30} style={styles.navIcon}/><Text style={ this.state.current === 3 ? { fontWeight: 'bold' } : {} }>History</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.navItem} onPress={ () => this.navigate('SettingsScreen', 3) }>
-              <MaterialIcon name='settings' size={30} style={styles.navIcon}/><Text style={ this.state.current === 3 ? { fontWeight: 'bold' } : {} }>Settings</Text>
+            <TouchableOpacity style={styles.navItem} onPress={ () => this.navigate('SettingsScreen', 4) }>
+              <MaterialIcon name='settings' size={30} style={styles.navIcon}/><Text style={ this.state.current === 4 ? { fontWeight: 'bold' } : {} }>Settings</Text>
             </TouchableOpacity>
 
             <View style={styles.border}></View>
@@ -90,7 +94,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         paddingVertical: 15,
-        backgroundColor: 'gray',
+        backgroundColor: '#546E7A',
         marginBottom: 5,
         // transform: [
         //   {
@@ -111,7 +115,8 @@ const styles = StyleSheet.create({
         flex: 1
     },
     navIcon: {
-        marginRight: 25
+        marginRight: 25,
+        color: '#546E7A'
     },
     navItem: {
         flex: 1,
