@@ -45,6 +45,8 @@ export default class Upload extends Component {
         this.state = {
             selectedImageBase64: '',
             selectedImageName: '',
+            selectedImageWidth: 0,
+            selectedImageHeight: 0,
             status: STATUS.READY
         }
     }
@@ -52,6 +54,14 @@ export default class Upload extends Component {
     componentDidMount = function () {
         const navState = this.props.navigation.state
         keyHolder.set(navState.routeName, navState.key)
+    }
+
+    componentDidUpdate = function (prevProps) {
+        Image.getSize(`data:image/jpg;base64,${this.state.selectedImageBase64}`, (w, h) => {
+            this.setState({ selectedImageWidth: w, selectedImageHeight: h })
+        }, err => {
+            console.log(err)
+        })
     }
 
     // static options = {
@@ -119,15 +129,17 @@ export default class Upload extends Component {
             const jsonBody = await response.json() // jsonBody should be an array of objects with keys "description" and "score"
             console.log('successful response', jsonBody)
 
-            // Successful operation, save the results to persistent storage
-            await AsyncStorage.setItem(this._lastId, JSON.stringify({ response, success: true, base64: this.state.selectedImageBase64, date: new Date().toString(), classifications: jsonBody }))
+            this.props.navigation.navigate('IdentifiedScreen', { id: this._lastId, response, base64: this.state.selectedImageBase64, imageWidth: this.state.selectedImageWidth, imageHeight: this.state.selectedImageHeight, classifications: jsonBody })
 
-            console.log('done!')
-            const url = 'https://www.google.com'
-            Alert.alert('Successfully Uploaded', `Response: ${JSON.stringify(jsonBody, null, 2)}\n\nSelect an option`, [
-                { text: 'Close', style: 'cancel' },
-                { text: 'Open Google', onPress: () => Linking.canOpenURL(url).then(able => able ? Linking.openURL(url) : Promise.reject()).catch(console.log) }
-            ])
+            // Successful operation, save the results to persistent storage
+            // await AsyncStorage.setItem(this._lastId, JSON.stringify({ response, success: true, base64: this.state.selectedImageBase64, date: new Date().toString(), classifications: jsonBody }))
+
+            // console.log('done!')
+            // const url = 'https://www.google.com'
+            // Alert.alert('Successfully Uploaded', `Response: ${JSON.stringify(jsonBody, null, 2)}\n\nSelect an option`, [
+            //     { text: 'Close', style: 'cancel' },
+            //     { text: 'Open Google', onPress: () => Linking.canOpenURL(url).then(able => able ? Linking.openURL(url) : Promise.reject()).catch(console.log) }
+            // ])
 
         } catch (err) {
             AsyncStorage.setItem(this._lastId, JSON.stringify({ success: false, error: err.message, base64: this.state.selectedImageBase64, date: new Date().toString() }))
@@ -141,13 +153,7 @@ export default class Upload extends Component {
         // LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         // this.setState({ status: this.state.status === STATUS.UPLOADED ? STATUS.READY : STATUS.UPLOADED })
         if (!this.state.selectedImageBase64) return console.log('no base64')
-        Image.getSize(`data:image/jpg;base64,${this.state.selectedImageBase64}`, (w, h) => {
-            this.props.navigation.navigate('ViewImageFromUploadScreen', { base64: this.state.selectedImageBase64, width: w, height: h })
-        }, err => {
-            console.log(err)
-        })
-
-        if (this.state.selectedImageBase64) this.props.navigation.navigate('UploadScreen', { base64: this.state.selectedImageBase64 })
+        this.props.navigation.navigate('ViewImageFromUploadScreen', { base64: this.state.selectedImageBase64, width: this.state.selectedImageWidth, height: this.state.selectedImageHeight })
     }
 
     render () {
@@ -156,7 +162,7 @@ export default class Upload extends Component {
         return (
             <View style={containerDuringReady}>
                 <TouchableOpacity style={styles.imageSelectionContainer} onPress={this.onImageBoxPress}>
-                    <Text>{ this.state.selectedImageBase64 ? 'Image attached' : 'No image attached' }</Text>
+                    <Text>{ this.state.selectedImageBase64 ? 'Image attached\nClick to preview' : 'No image attached' }</Text>
                 </TouchableOpacity>
                 <View style={styles.buttonColumnGroup}>
                     <View style={styles.buttonRowGroup}>
@@ -199,6 +205,17 @@ export default class Upload extends Component {
                         }}
                         title='Identify'
                     />
+                    {/* <Button
+                        containerViewStyle={ { ...styles.buttonContainer, marginTop: 10 } }
+                        buttonStyle={styles.button}
+                        onPress={() => this.props.navigation.navigate('IdentifiedScreen', { base64: this.state.selectedImageBase64, imageWidth: this.state.selectedImageWidth, imageHeight: this.state.selectedImageHeight })}
+                        icon={{
+                            name: 'search',
+                            size: 25,
+                            color: 'white'
+                        }}
+                        title='Test'
+                    /> */}
                 </View>
             </View>
         )

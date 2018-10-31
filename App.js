@@ -8,6 +8,7 @@ import Details from './js/components/Details.js'
 import Login from './js/components/Login.js'
 import Upload from './js/components/Upload.js'
 import ViewImage from './js/components/ViewImage.js'
+import Identified from './js/components/Identified.js'
 import Icon from 'react-native-vector-icons/Ionicons';
 import colorConstants from './js/constants/colors'
 import { StyleSheet } from 'react-native'
@@ -54,20 +55,26 @@ const uploadNavigator = createStackNavigator({
     screen: Camera,
     navigationOptions: ({ navigation }) => { 
       return {
-        // headerLeft: (<Icon name="ios-menu" size={30} onPress={() => navigation.toggleDrawer()} color={colorConstants.headerTextColor} style={styles.headerLeftButton} />),
-        // headerStyle: styles.headerStyle,
         headerTintColor: colorConstants.headerTextColor
       }
   }},
   ViewImageFromUploadScreen: {
     screen: ViewImage,
-    navigationOptions: ({ navigation }) => { 
+    navigationOptions: ({ navigation }) => {
       return {
         headerStyle: styles.headerStyle,
         headerTintColor: colorConstants.headerTextColor
       }
-  }}
-}, {
+  }},
+  IdentifiedScreen: {
+    screen: Identified,
+    navigationOptions: ({ navigation }) => {
+      return {
+        headerStyle: styles.headerStyle,
+        headerTintColor: colorConstants.headerTextColor
+      }
+    }
+  }}, {
   cardStyle: { backgroundColor: colorConstants.headerBackgroundColorVeryLight }
 })
 
