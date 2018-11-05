@@ -53,14 +53,6 @@ class Camera extends Component {
     setTimeout(() => this.setState({ mounted: true }), 200) // Wait for the screen to finish its animation
   }
 
-  _generateId = () => {
-    const S4 = () => {
-      return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
-    }
-    const id = 'photo.' + (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
-    return id
-  }
-
   render() {
     return (
       <View style={styles.container}>
@@ -71,6 +63,7 @@ class Camera extends Component {
             style = {styles.preview}
             type={RNCamera.Constants.Type.back}
             flashMode={this.state.flash}
+            skipProcessing={true}
             permissionDialogTitle={'Permission to use camera'}
             permissionDialogMessage={'We need your permission to use your camera phone'}
             onGoogleVisionBarcodesDetected={({ barcodes }) => {
@@ -97,15 +90,7 @@ class Camera extends Component {
           animation='fade'
           color={colorConstants.headerBackgroundColor}
         />
-        {/* <Spinner
-          visible={this.state.processing}
-          textContent={'Processing...'}
-          textStyle={{ color: '#FFF' }}
-        />
-        <View style={{flex: 0, opacity: 1, flexDirection: 'row', justifyContent: 'center'}}>
-        <TouchableOpacity><Icon name="eye" size={55} style={ styles.capture } onPress={ this.takePicture.bind(this) } color='white'/></TouchableOpacity>
 
-        </View> */}
       </View>
     );
   }
@@ -127,63 +112,27 @@ class Camera extends Component {
       console.log('about to take picture')
       this.setState({ processing: true })
       data = await this.camera.takePictureAsync(options)
+      this.setState({processing: false})
       this.camera.pausePreview()
 
-      console.log('took picture')
-
       const setParamsAction = NavigationActions.setParams({
-        params: { imageBase64: data.base64 },
+        params: {
+          imageBase64: data.base64,
+          imageWidth: data.width,
+          imageHeight: data.height
+        },
         key: keyHolder.get('UploadScreen'),
       });
       this.props.navigation.dispatch(setParamsAction);
-      console.log('dispatched')
       this.props.navigation.goBack()
-      console.log('go back')
 
-    //   return
-    //   // Upload it
-    //   this.setState({ processing: true })
-    //   this._lastId = this._generateId()
-
-    //   const response = await this.uploadImage(data.base64)
-
-    //   // Prompt the user for action with the response
-    //   await this.handleLinkResponse(response)
-    //   await AsyncStorage.setItem(this._lastId, JSON.stringify({ response, success: true, base64: data.base64, date: new Date().toString() }))
     } catch (err) {
-    //   console.log('here')
-    //   if (data) {
-    //     console.log('setting now for', this._lastId)
-    //     AsyncStorage.setItem(this._lastId, JSON.stringify({ success: false, error: err.message, base64: data.base64, date: new Date().toString() }))
-    //   }
       Alert.alert('Error', err.message)
       console.error(err)
     }
     // this.setState({ processing: false })
     this.setState({ processing: false })
     this.camera.resumePreview()
-  }
-
-  uploadImage = async function(base64) { // dataURI is the file:// path to the image in the app's cache
-    const host = await AsyncStorage.getItem('host')
-    console.log('uploading to', host)
-    // const formData = new FormData()
-    // formData.append('photo', { uri: base64, data: base64, type: 'image/jpeg', name: 'testPhotoName' })
-    const res = await fetch(host, {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ base64 })
-    })
-    // If this is sent to a python flask server, then receive the POST(! not GET!) request as such:
-    //       file = request.files['photo']
-    //       file.save('./test.jpg')
-
-    // Status code must be 200. res.ok is a boolean which checks this
-    if (!res.ok) throw new Error(`Non-200 status code (${res.status})`)
-    return res
   }
 
   handleLinkResponse = async function (response) { // Should be the wikipedia link
@@ -203,23 +152,11 @@ const styles = StyleSheet.create({
     },
     preview: {
       flex: 1,
-      // justifyContent: 'flex-end',
       alignItems: 'center'
     },
     capture: {
       position: 'absolute',
       bottom: 0,
-      // backgroundColor: 'green',
-      // flex: 0,
-      // backgroundColor: 'white',
-      // borderRadius: 5,
-      // padding: 15,
-      // height: 50,
-      // width: 50,
-      // borderRadius: 25,
-      // opacity: .5,
-
-      // paddingHorizontal: 20,
       alignSelf: 'center',
       margin: 18,
     }

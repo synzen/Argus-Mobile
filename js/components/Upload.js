@@ -14,6 +14,10 @@ import {
 import ImagePicker from 'react-native-image-picker';
 import { Button } from 'react-native-elements';
 import keyHolder from '../constants/keys.js'
+import generalConstants from '../constants/general.js'
+import schemas from '../constants/schemas.js'
+import RNFS from 'react-native-fs'
+import Realm from 'realm'
 UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
 
 const STATUS = {
@@ -28,11 +32,14 @@ export default class Upload extends Component {
     }
 
     static getDerivedStateFromProps(nextProps, state) {
-        // console.log('derived')
-        // console.log(nextProps.navigation.state.params.title)
-        // console.log(state)
         const navState = nextProps.navigation.state
-        if (navState.params && navState.params.imageBase64 && state.selectedImageBase64 !== navState.params.imageBase64) return { selectedImageBase64: navState.params.imageBase64 }
+        if (navState.params && navState.params.imageBase64 && state.selectedImageBase64 !== navState.params.imageBase64) {
+            return { 
+                selectedImageBase64: navState.params.imageBase64,
+                selectedImageWidth: navState.params.imageWidth,
+                selectedImageHeight: navState.params.imageHeight
+            }
+        }
         else return null
 
     }
@@ -56,55 +63,25 @@ export default class Upload extends Component {
         keyHolder.set(navState.routeName, navState.key)
     }
 
-    componentDidUpdate = function (prevProps) {
-        Image.getSize(`data:image/jpg;base64,${this.state.selectedImageBase64}`, (w, h) => {
-            this.setState({ selectedImageWidth: w, selectedImageHeight: h })
-        }, err => {
-            console.log(err)
-        })
+    _generateId = () => {
+        const S4 = () => (((1+Math.random())*0x10000)|0).toString(16).substring(1)
+        return 'photo.' + (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4())
     }
 
-    // static options = {
-    //     storageOptions: {
-    //       skipBackup: true,
-    //       path: 'argus'
-    //     },
-    //   };
-
-    // componentWillReceiveProps = () => {
-    //     console.log('got it')
-    // }
-
-    _generateId = () => {
-        const S4 = () => {
-          return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
-        }
-        const id = 'photo.' + (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
-        return id
-      }
-
     openSelector = () => {
-        ImagePicker.launchImageLibrary({}, res => {
-            console.log('Response = ', res);
-            console.log(res)
-          
+        ImagePicker.launchImageLibrary({}, res => {            
             if (res.didCancel) {
               console.log('User cancelled image picker');
             } else if (res.error) {
               console.log('ImagePicker Error: ', res.error);
             } else {          
-                this.setState({ selectedImageBase64: res.data })
+                this.setState({ selectedImageBase64: res.data, selectedImageHeight: res.height, selectedImageWidth: res.width })
 
             }
         });
     }
 
-    openCamera = () => {
-        this.props.navigation.navigate('CameraScreen')
-        // ImagePicker.launchCamera({ storageOptions: { path: 'argus', skipBackup: true } }, res => {
-        //     console.log(res)
-        // });
-    }
+    openCamera = () => this.props.navigation.navigate('CameraScreen')
 
     upload = async () => {
         try {
@@ -123,28 +100,54 @@ export default class Upload extends Component {
                 },
                 body: JSON.stringify([ this.state.selectedImageBase64 ])
             })
+
+            // If this is sent to a python flask server, then receive the POST(! not GET!) request as such:
+            // file = request.files['photo']
+            // file.save('./test.jpg')
+
             // Status code must be 200. res.ok is a boolean which checks this
             if (!response.ok) throw new Error(`Non-200 status code (${response.status})`)
 
-            const jsonBody = await response.json() // jsonBody should be an array of objects with keys "description" and "score"
-            console.log('successful response', jsonBody)
+            const jsonBody = await response.json() // jsonBody should be an array of objects with the keys specified in js/constants/schemas.ClassificationSchema.properties
 
-            this.props.navigation.navigate('IdentifiedScreen', { id: this._lastId, response, base64: this.state.selectedImageBase64, imageWidth: this.state.selectedImageWidth, imageHeight: this.state.selectedImageHeight, classifications: jsonBody })
-
-            // Successful operation, save the results to persistent storage
-            // await AsyncStorage.setItem(this._lastId, JSON.stringify({ response, success: true, base64: this.state.selectedImageBase64, date: new Date().toString(), classifications: jsonBody }))
-
-            // console.log('done!')
-            // const url = 'https://www.google.com'
-            // Alert.alert('Successfully Uploaded', `Response: ${JSON.stringify(jsonBody, null, 2)}\n\nSelect an option`, [
-            //     { text: 'Close', style: 'cancel' },
-            //     { text: 'Open Google', onPress: () => Linking.canOpenURL(url).then(able => able ? Linking.openURL(url) : Promise.reject()).catch(console.log) }
-            // ])
-
+            // The response is handed off to IdentifiedScreen to decide whether to save the base64 as an image file or not
+            this.props.navigation.navigate('IdentifiedScreen', {
+                id: this._lastId, response,
+                base64: this.state.selectedImageBase64,
+                imageWidth: this.state.selectedImageWidth,
+                imageHeight: this.state.selectedImageHeight,
+                classifications: jsonBody
+            })
         } catch (err) {
-            AsyncStorage.setItem(this._lastId, JSON.stringify({ success: false, error: err.message, base64: this.state.selectedImageBase64, date: new Date().toString() }))
+            console.log(err)
+            console.log(this._lastId)
+            const path = `${generalConstants.photoDirectory}/${this._lastId}.jpg`
+            RNFS.mkdir(generalConstants.photoDirectory)
+            .then(() => RNFS.writeFile(path, this.state.selectedImageBase64, 'base64'))
+            .then(() => Realm.open({ schema: schemas.all }))
+            .then(realm => {
+                realm.write(() => {
+                    realm.create(schemas.FailedIdentifiedItemSchema.name, {
+                        id: this._lastId,
+                        response: this.state.response,
+                        error: err.message,
+                        image: {
+                            path: path,
+                            width: this.state.selectedImageWidth,
+                            height: this.state.selectedImageHeight
+                        }
+                        // base64: this.state.base64,
+                    })
+                })
+                console.log('saved to failures')
+                Alert.alert('Saved to Failures')
+            })
+            .catch(err => {
+                Alert.alert('Error', err.message)
+                console.log('realm pipeline err',  err)
+            })
+            // AsyncStorage.setItem(this._lastId, JSON.stringify({ success: false, error: err.message, base64: this.state.selectedImageBase64, date: new Date().toString() }))
             // Alert.alert('Failed to upload', err.message)
-            console.error(err)
         }
         this.setState({ status: STATUS.READY })
     }
@@ -182,7 +185,6 @@ export default class Upload extends Component {
                             containerViewStyle={styles.buttonContainer}
                             buttonStyle={ {... styles.button }}
                             onPress={this.openCamera}
-                            // disabled={ Platform.OS === 'android' ? true : true }
                             icon={{
                                 name: 'camera-alt',
                                 size: 25,
@@ -191,7 +193,6 @@ export default class Upload extends Component {
                             title='New Photo'
                         />
 
-                        {/* <ButtonGroup buttons={ buttonGroup } containerStyle={{ paddingHorizontal: 0, backgroundColor: 'transparent', borderWidth: 0 }} ></ButtonGroup> */}
                     </View>
                     <Button
                         containerViewStyle={ { ...styles.buttonContainer, marginTop: 10 } }
@@ -227,15 +228,8 @@ const styles = StyleSheet.create({
         marginHorizontal: 10,
         flex: 1,
         flexDirection: 'column',
-        // alignContent: 'center',
-        // justifyContent: 'center'
-        // justifyContent: 'center'
-
     },
     imageSelectionContainer: {
-        // padding: 30,
-        // flex: 0,
-        // flexDirection: 'row',
         marginHorizontal: 15,
         marginVertical: 20,
         alignItems: 'center',
@@ -253,23 +247,14 @@ const styles = StyleSheet.create({
         flex: 0,
         flexDirection: 'row',
         justifyContent: 'space-between',
-        // backgroundColor: 'orange',
         margin: 0,
         padding: 0
     },
     buttonContainer: {
-        // marginVertical: 5,
-        // backgroundColor: 'green'
-        // marginHorizontal: 10
         backgroundColor: 'green'
     },
     button: {
-        // alignItems: 'center',
         backgroundColor: '#607D8B',
         height: 45
-        // margin: 0,
-        // padding: 10,
-        // marginVertical: 5,
-        // marginHorizontal: 10
     }
 })

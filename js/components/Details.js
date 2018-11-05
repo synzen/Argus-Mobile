@@ -35,7 +35,8 @@ export default class Details extends Component {
 
     constructor(props) {
         super(props)
-        const classifications = this.props.navigation.state.params.classifications
+        const params = this.props.navigation.state.params
+        const classifications = params.classifications
         let max = {
             percent: 0,
             name: '',
@@ -58,7 +59,9 @@ export default class Details extends Component {
             selectedMatchName: max.name,
             selectedWikipedia: max.wikipediaUrl || 'https://www.google.com',
             selectedSummary: max.summary || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum',
-            fadeAnim: new Animated.Value(1)
+            fadeAnim: new Animated.Value(1),
+            imageWidth: win.width * .9,
+            imageHeight: params.image.height * win.width * .9 / params.image.width
         }
     }
 
@@ -79,17 +82,15 @@ export default class Details extends Component {
 
     render () {
         const navProps = this.props.navigation.state.params
-        const imageWidth = win.width * .9
-        const imageHeight = this.calcImageHeight(navProps.width, navProps.height, imageWidth)
 
         return (
             <ScrollView>
                 <View style={styles.container}>
-                    <TouchableOpacity  onPress={() => this.props.navigation.navigate('ViewImageScreen', { base64: navProps.base64, width: navProps.width, height: navProps.height })}>
-                        <FastImage source={{uri: `data:image/jpg;base64,${navProps.base64}`}} style={ { ...styles.image, height: imageHeight, width: imageWidth } } resizeMode={FastImage.resizeMode.stretch}/>
+                    <TouchableOpacity  onPress={() => this.props.navigation.navigate('ViewImageScreen', { base64: navProps.image.base64, width: navProps.image.width, height: navProps.image.height })}>
+                        <FastImage source={{uri: `data:image/jpg;base64,${navProps.image.base64}`}} style={ { ...styles.image, height: this.state.imageHeight, width: this.state.imageWidth } } resizeMode={FastImage.resizeMode.stretch}/>
                     </TouchableOpacity>
                     {/* <Image resizeMode='contain' source={{uri: navProps.uri}} style={styles.image}/> */}
-                    { navProps.success === true ? 
+                    { !navProps.error ? 
                         (<View>
                             <Animated.Text style={ { ...styles.superHeading, opacity: this.state.fadeAnim } }>{this.state.selectedMatchName}</Animated.Text>
                             <Animated.Text style={{ ...styles.subheading, marginVertical: 5, opacity: this.state.fadeAnim }}>{(this.state.selectedMatchPercent * 100).toFixed(2)}% Score</Animated.Text>
@@ -128,17 +129,17 @@ export default class Details extends Component {
                         <View style={styles.miscInfoRow}>
                             <View style={styles.miscInfoItem}>
                                 <Text style={styles.subheading}>File Name</Text>
-                                <Text>{navProps.name}</Text>
+                                <Text>{navProps.id}</Text>
                             </View>
                             <View style={styles.miscInfoItem}>
                                 <Text style={styles.subheading}>Dimensions</Text>
-                                <Text>{navProps.width}x{navProps.height}</Text>
+                                <Text>{navProps.image.width}x{navProps.image.height}</Text>
                             </View>
                         </View>
                         <View style={styles.miscInfoRow}>
                             <View style={styles.miscInfoItem}>
                                 <Text style={styles.subheading}>Date Modified</Text>
-                                <Text>{navProps.mtime.toString()}</Text>
+                                <Text>{navProps.date.toString()}</Text>
                             </View>
                             <View style={styles.miscInfoItem}>
                                 {/* <Text style={styles.subheading}>File Size</Text>

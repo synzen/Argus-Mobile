@@ -7,17 +7,30 @@ import {
     StyleSheet,
     AsyncStorage,
     Image,
+    Animated,
     Dimensions,
     UIManager,
     LayoutAnimation
 } from 'react-native'
 import FastImage from 'react-native-fast-image'
+import generalConstants from '../constants/general.js'
 import colorConstants from '../constants/colors.js'
 import { Button, Divider } from 'react-native-elements'
 import { material } from 'react-native-typography'
+import schemas from '../constants/schemas.js'
+import RNFS from 'react-native-fs'
+import Realm from 'realm'
 UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
 
 const windowDimensions = Dimensions.get('window')
+
+const isCloseToBottom = e => {
+    const {layoutMeasurement, contentOffset, contentSize} = e.nativeEvent
+    console.log(e)
+    const paddingToBottom = 20;
+    return layoutMeasurement.height + contentOffset.y >=
+      contentSize.height - paddingToBottom;
+  }
 
 export default class Identified extends Component {
     static navigationOptions = {
@@ -36,7 +49,9 @@ export default class Identified extends Component {
             response: params.response,
             imageWidth: 0,
             imageHeight: 0,
-            buttonGroupBottom: -100,
+            originalImageWidth: params.imageWidth,
+            originalImageHeight: params.imageHeight,
+            buttonGroupBottom: 0,
             classifications: classifications,
             bestItemName: '',
             bestItemScore: 0
@@ -53,14 +68,10 @@ export default class Identified extends Component {
         let desiredWidth = windowDimensions.width * .9
         let desiredHeight = windowDimensions.height * .9
         if (params.imageWidth < desiredWidth) { // Then use the desired height
-            console.log(1)
             desiredWidth = desiredHeight * params.imageWidth / params.imageHeight
         } else if (params.imageHeight > desiredHeight) { // Then use desired width
-            console.log(2)
             desiredHeight = desiredWidth * params.imageHeight / params.imageWidth
         } else {
-            console.log(3)
-            console.log(params.imageHeight)
             desiredWidth = params.imageWidth
             desiredHeight = params.imageHeight
         }
@@ -70,26 +81,61 @@ export default class Identified extends Component {
     }
 
     componentDidMount() {
-        setTimeout(() => {
-            LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
-            this.setState({ buttonGroupBottom: 0 })
-        }, 150)
+        // setTimeout(() => {
+        //     LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
+        //     this.setState({ buttonGroupBottom: 0 })
+        // }, 150)
     }
 
-    save = () => {
-        AsyncStorage.setItem(this.state.id, JSON.stringify({ response: this.state.response, success: true, base64: this.state.base64, date: new Date().toString(), classifications: this.state.classifications }))
-        .then(() => {
+    save = async () => {
+        // AsyncStorage.setItem(this.state.id, JSON.stringify({ response: this.state.response, success: true, base64: this.state.base64, date: new Date().toString(), classifications: this.state.classifications }))
+        const path = `${generalConstants.photoDirectory}/${this.state.id}.jpg`
+        try {
+            await RNFS.mkdir(generalConstants.photoDirectory)
+            await RNFS.writeFile(path, this.state.base64, 'base64')
+            const realm = await Realm.open({ schema: schemas.all })
+            // This write method might throw an exception
+            realm.write(() => {
+                realm.create(schemas.IdentifiedItemSchema.name, {
+                    id: this.state.id,
+                    image: {
+                        path: path,
+                        width: this.state.originalImageWidth,
+                        height: this.state.originalImageHeight
+                    },
+                    response: this.state.response.toString(),
+                    classifications: this.state.classifications
+                })
+            })
+
+            console.log('saved success')
             Alert.alert('Saved!')
             this.props.navigation.goBack()
-        })
-        .catch(err => {
-            console.log(err)
+        } catch (err) {
             Alert.alert('Error', err.message)
-        })
+            RNFS.unlink(path).catch(err => console.log(`Cannot delete ${path}:`, err))
+            console.log(err)
+        }
+        // .then(() => {
+        //     Alert.alert('Saved!')
+        //     this.props.navigation.goBack()
+        // })
+        // .catch(err => {
+        //     console.log(err)
+        //     Alert.alert('Error', err.message)
+        // })
     }
 
     discard = () => {
         this.props.navigation.goBack()
+    }
+
+    scrollEvent = e => {
+        console.log(e)
+        if (!isCloseToBottom(e)) return
+        console.log('here')
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.spring);
+        this.setState({ buttonGroupBottom: 0 })
     }
 
     render () {
