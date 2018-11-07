@@ -1,5 +1,5 @@
 export default {
-    flash: 'on',
-    focus: 'on',
-    camera: 'back'
+  flash: 'on',
+  focus: 'on',
+  camera: 'back'
 }

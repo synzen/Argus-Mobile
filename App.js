@@ -1,4 +1,4 @@
-import { createStackNavigator, createDrawerNavigator } from 'react-navigation';
+import { createStackNavigator, createDrawerNavigator } from 'react-navigation'
 import HomeScreen from './js/components/Home.js'
 import Camera from './js/components/Camera.js'
 import SideMenu from './js/components/SideMenu.js'
@@ -6,21 +6,20 @@ import History from './js/components/History'
 import Settings from './js/components/Settings.js'
 import Details from './js/components/Details.js'
 import Login from './js/components/Login.js'
-import Upload from './js/components/Upload.js'
 import ViewImage from './js/components/ViewImage.js'
 import ConfirmImage from './js/components/ConfirmImage.js'
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from 'react-native-vector-icons/Ionicons'
 import colorConstants from './js/constants/colors'
 import { StyleSheet } from 'react-native'
-import React, { Component } from 'react';
-import { fromLeft, zoomIn } from 'react-navigation-transitions'
+import React from 'react'
+import { fromLeft } from 'react-navigation-transitions'
 
 const homeNavigator = createStackNavigator({
   HomeScreen: {
     screen: HomeScreen,
-    navigationOptions: ({ navigation }) => { 
+    navigationOptions: ({ navigation }) => {
       return {
-        headerLeft: (<Icon name="ios-menu" size={30} onPress={() => navigation.toggleDrawer()} color={colorConstants.headerTextColor} style={styles.headerLeftButton} />),
+        headerLeft: (<Icon name='ios-menu' size={30} onPress={() => navigation.toggleDrawer()} color={colorConstants.headerTextColor} style={styles.headerLeftButton} />),
         headerStyle: styles.headerStyle,
         headerTintColor: colorConstants.headerTextColor
       }
@@ -35,7 +34,7 @@ const uploadNavigator = createStackNavigator({
     screen: Camera,
     navigationOptions: ({ navigation }) => {
       return {
-        headerLeft: (<Icon name="ios-menu" size={30} onPress={() => navigation.toggleDrawer()} color={colorConstants.headerTextColor} style={styles.headerLeftButton} />),
+        headerLeft: (<Icon name='ios-menu' size={30} onPress={() => navigation.toggleDrawer()} color={colorConstants.headerTextColor} style={styles.headerLeftButton} />),
         // headerStyle: styles.headerStyle,
         headerTintColor: colorConstants.headerTextColor,
         headerTransparent: true
@@ -48,17 +47,17 @@ const uploadNavigator = createStackNavigator({
       return {
         header: null
       }
-  }},
-  }, {
+    }}
+}, {
   cardStyle: { backgroundColor: colorConstants.headerBackgroundColorVeryLight }
 })
 
 const historyNavigator = createStackNavigator({
   HistoryScreen: {
     screen: History,
-    navigationOptions: ({ navigation }) => { 
+    navigationOptions: ({ navigation }) => {
       return {
-        headerLeft: (<Icon name="ios-menu" size={30} onPress={() => navigation.toggleDrawer()} color={colorConstants.headerTextColor} style={styles.headerLeftButton} />),
+        headerLeft: (<Icon name='ios-menu' size={30} onPress={() => navigation.toggleDrawer()} color={colorConstants.headerTextColor} style={styles.headerLeftButton} />),
         headerStyle: styles.headerStyle,
         headerTintColor: colorConstants.headerTextColor
       }
@@ -66,7 +65,7 @@ const historyNavigator = createStackNavigator({
   },
   DetailsScreen: {
     screen: Details,
-    navigationOptions: ({ navigation }) => { 
+    navigationOptions: ({ navigation }) => {
       return {
         headerStyle: styles.headerStyle,
         headerTintColor: colorConstants.headerTextColor
@@ -75,7 +74,7 @@ const historyNavigator = createStackNavigator({
   },
   ViewImageScreen: {
     screen: ViewImage,
-    navigationOptions: ({ navigation }) => { 
+    navigationOptions: ({ navigation }) => {
       return {
         headerStyle: styles.headerStyle,
         headerTintColor: colorConstants.headerTextColor
@@ -89,13 +88,13 @@ const historyNavigator = createStackNavigator({
 const settingsNavigator = createStackNavigator({
   SettingsScreen: {
     screen: Settings,
-    navigationOptions: ({ navigation }) => { 
+    navigationOptions: ({ navigation }) => {
       return {
-        headerLeft: (<Icon name="ios-menu" size={30} onPress={() => navigation.toggleDrawer()} color={colorConstants.headerTextColor} style={styles.headerLeftButton} />),
+        headerLeft: (<Icon name='ios-menu' size={30} onPress={() => navigation.toggleDrawer()} color={colorConstants.headerTextColor} style={styles.headerLeftButton} />),
         headerStyle: styles.headerStyle,
         headerTintColor: colorConstants.headerTextColor
       }
-  }}
+    }}
 }, {
   cardStyle: { backgroundColor: colorConstants.headerBackgroundColorVeryLight }
 })
@@ -109,7 +108,6 @@ const drawerScreens = createDrawerNavigator({
   contentComponent: SideMenu,
   initialRouteName: 'Home'
 })
-
 
 export default createStackNavigator({
   Drawer: {
@@ -142,7 +140,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12
   },
   headerStyle: {
-    backgroundColor: colorConstants.headerBackgroundColor,
+    backgroundColor: colorConstants.headerBackgroundColor
   },
   cardStyle: {
     backgroundColor: colorConstants.headerBackgroundColorVeryLight
