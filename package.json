@@ -7,7 +7,7 @@
     "eslint": "eslint App.js",
     "test": "jest",
     "build-android": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/ && react-native run-android",
-    "build-debug": "react-native bundle --dev false --platform android --entry-file index.js --bundle-output ./android/app/build/intermediates/assets/debug/index.android.bundle --assets-dest ./android/app/build/intermediates/res/merged/debug && cd android && gradlew clean && gradlew assembleDebug && cd .. && copy \"./android/app/build/outputs/apk/debug/app-debug.apk\" \"./apk/app-debug.apk\"",
+    "build-debug": "react-native bundle --dev false --platform android --entry-file index.js --bundle-output ./android/app/build/intermediates/assets/debug/index.android.bundle --assets-dest ./android/app/build/intermediates/res/merged/debug && cd android && gradlew clean && gradlew assembleDebug && cd ..",
     "clean": "cd android && gradlew clean && cd .."
   },
   "dependencies": {

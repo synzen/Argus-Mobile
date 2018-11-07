@@ -58,7 +58,7 @@ export default class SideMenu extends Component {
               <MaterialIcon name='home' size={30} style={styles.navIcon}/><Text style={ this.state.current === 0 ? { fontWeight: 'bold' } : {} }>Home</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.navItem} onPress={ () => this.navigate('UploadScreen', 1) }>
+            <TouchableOpacity style={styles.navItem} onPress={ () => this.navigate('CameraScreen', 1) }>
               <MaterialIcon name='cloud-upload' size={30} style={styles.navIcon}/><Text style={ this.state.current === 1 ? { fontWeight: 'bold' } : {} }>Upload</Text>
             </TouchableOpacity>
 

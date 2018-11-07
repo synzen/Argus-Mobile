@@ -12,9 +12,14 @@ import {
 import { RNCamera } from 'react-native-camera'
 import Spinner from 'react-native-loading-spinner-overlay'
 import Icon from 'react-native-vector-icons/Entypo'
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
 import keyHolder from '../constants/keys.js'
+import generalConstants from '../constants/general.js'
 import colorConstants from '../constants/colors.js'
 import CameraDefaults from '../constants/camera.js'
+import schemas from '../constants/schemas.js'
+import RNFS from 'react-native-fs'
+import ImagePicker from 'react-native-image-picker';
 import { NavigationActions } from 'react-navigation';
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity)
@@ -27,7 +32,6 @@ class Camera extends Component {
 
   constructor(props) {
     super(props)
-    this._lastId = ''
 
     this.state = {
       processing: false,
@@ -35,7 +39,10 @@ class Camera extends Component {
       flash: RNCamera.Constants.FlashMode[CameraDefaults.flash],
       focus: RNCamera.Constants.AutoFocus[CameraDefaults.focus],
       camera: RNCamera.Constants.Type[CameraDefaults.camera],
-      mounted: false
+      mounted: false,
+      selectedImageBase64: '',
+      selectedImageHeight: -1,
+      selectedImageWidth: -1
     }
     AsyncStorage.multiGet(['camera.flash', 'camera.focus', 'camera.camera']).then(vals => {
       vals.map(item => {
@@ -50,7 +57,19 @@ class Camera extends Component {
   componentDidMount = function () {
     const navState = this.props.navigation.state
     if (!keyHolder.has(navState.routeName)) keyHolder.set(navState.routeName, navState.key)
-    setTimeout(() => this.setState({ mounted: true }), 200) // Wait for the screen to finish its animation
+    setTimeout(() => this.setState({ mounted: true }), 500) // Wait for the screen to finish its animation
+  }
+
+  selectImage = () => {
+    ImagePicker.launchImageLibrary({}, res => {
+      if (res.didCancel) {
+        console.log('User cancelled image picker')
+      } else if (res.error) {
+        console.log('ImagePicker Error: ', res.error)
+      } else {          
+        this.props.navigation.navigate('ConfirmImageScreen', { width: res.width, height: res.height, base64: res.data })
+      }
+    })
   }
 
   render() {
@@ -71,14 +90,21 @@ class Camera extends Component {
             }}
             
         >
-                <AnimatedTouchableOpacity style={ { ...styles.capture, 
-          transform: [
-            { scaleX: this.state.eyeScale },
-            { scaleY: this.state.eyeScale }
-          ]}} >
-          <Icon name="eye" size={65} onPress={ this.takePicture.bind(this) } color='white'/>
-        </AnimatedTouchableOpacity>
-        <View style={{flex: 0, bottom: 0, position: 'absolute', opacity: .5, backgroundColor: 'black', right: 0, left: 0, height: 100}} />
+
+        <View style={styles.bottomContainer}>
+          <TouchableOpacity style={styles.select} >
+            <MaterialIcon name='image' size={30} color='white' onPress={ this.selectImage } />
+          </TouchableOpacity>
+          <AnimatedTouchableOpacity style={ { ...styles.capture, 
+            transform: [
+              { scaleX: this.state.eyeScale },
+              { scaleY: this.state.eyeScale }
+            ]}} >
+            <Icon name="eye" size={65} onPress={ this.takePicture.bind(this) } color='white'/>
+          </AnimatedTouchableOpacity>
+        </View>
+
+        <View style={styles.bottomBackground} />
 
         </RNCamera> : undefined }
 
@@ -108,39 +134,22 @@ class Camera extends Component {
     const options = { quality: 0.5, base64: true, doNotSave: true };
     let data
     try {
-      // Take the picture
       console.log('about to take picture')
       this.setState({ processing: true })
       data = await this.camera.takePictureAsync(options)
-      this.setState({processing: false})
       this.camera.pausePreview()
-
-      const setParamsAction = NavigationActions.setParams({
-        params: {
-          imageBase64: data.base64,
-          imageWidth: data.width,
-          imageHeight: data.height
-        },
-        key: keyHolder.get('UploadScreen'),
-      });
-      this.props.navigation.dispatch(setParamsAction);
-      this.props.navigation.goBack()
+      this.props.navigation.navigate('ConfirmImageScreen', {
+        width: data.width,
+        height: data.height,
+        base64: data.base64
+      })
 
     } catch (err) {
       Alert.alert('Error', err.message)
       console.error(err)
     }
-    // this.setState({ processing: false })
     this.setState({ processing: false })
     this.camera.resumePreview()
-  }
-
-  handleLinkResponse = async function (response) { // Should be the wikipedia link
-    const url = 'https://www.google.com'
-    Alert.alert('Successfully Uploaded', `Response: ${JSON.stringify(response, null, 2)}\n\nSelect an option`, [
-      { text: 'Close', style: 'cancel' },
-      { text: 'Open Google', onPress: () => Linking.canOpenURL(url).then(able => able ? Linking.openURL(url) : Promise.reject()).catch(console.log) }
-    ])
   }
 }
 
@@ -156,9 +165,33 @@ const styles = StyleSheet.create({
     },
     capture: {
       position: 'absolute',
-      bottom: 0,
       alignSelf: 'center',
-      margin: 18,
+    },
+    select: {
+      marginRight: 175
+    },
+    bottomBackground: {
+      flex: 0,
+      bottom: 0,
+      position: 'absolute',
+      opacity: .5,
+      backgroundColor: 'black',
+      right: 0, 
+      left: 0,
+      height: 75,
+      zIndex: 100
+    },
+    bottomContainer: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      bottom: 0,
+      justifyContent: 'center',
+      position: 'absolute',
+      right: 0,
+      left: 0,
+      height: 75,
+      zIndex: -1
     }
 })
 

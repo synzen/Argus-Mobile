@@ -8,7 +8,7 @@ import Details from './js/components/Details.js'
 import Login from './js/components/Login.js'
 import Upload from './js/components/Upload.js'
 import ViewImage from './js/components/ViewImage.js'
-import Identified from './js/components/Identified.js'
+import ConfirmImage from './js/components/ConfirmImage.js'
 import Icon from 'react-native-vector-icons/Ionicons';
 import colorConstants from './js/constants/colors'
 import { StyleSheet } from 'react-native'
@@ -24,57 +24,32 @@ const homeNavigator = createStackNavigator({
         headerStyle: styles.headerStyle,
         headerTintColor: colorConstants.headerTextColor
       }
-  }}
+    }
+  }
 }, {
   cardStyle: { backgroundColor: colorConstants.headerBackgroundColorVeryLight }
 })
 
-// const cameraNavigator = createStackNavigator({
-//   CameraScreen: {
-//     screen: Camera,
-//     navigationOptions: ({ navigation }) => { 
-//       return {
-//         headerLeft: (<Icon name="ios-menu" size={30} onPress={() => navigation.toggleDrawer()} color={colorConstants.headerTextColor} style={styles.headerLeftButton} />),
-//         headerStyle: styles.headerStyle,
-//         headerTintColor: colorConstants.headerTextColor
-//       }
-//   }}
-// })
-
 const uploadNavigator = createStackNavigator({
-  UploadScreen: {
-    screen: Upload,
+  CameraScreen: {
+    screen: Camera,
     navigationOptions: ({ navigation }) => {
       return {
         headerLeft: (<Icon name="ios-menu" size={30} onPress={() => navigation.toggleDrawer()} color={colorConstants.headerTextColor} style={styles.headerLeftButton} />),
-        headerStyle: styles.headerStyle,
-        headerTintColor: colorConstants.headerTextColor
-      }
-  }},
-    CameraScreen: {
-    screen: Camera,
-    navigationOptions: ({ navigation }) => { 
-      return {
-        headerTintColor: colorConstants.headerTextColor
-      }
-  }},
-  ViewImageFromUploadScreen: {
-    screen: ViewImage,
-    navigationOptions: ({ navigation }) => {
-      return {
-        headerStyle: styles.headerStyle,
-        headerTintColor: colorConstants.headerTextColor
-      }
-  }},
-  IdentifiedScreen: {
-    screen: Identified,
-    navigationOptions: ({ navigation }) => {
-      return {
-        headerStyle: styles.headerStyle,
-        headerTintColor: colorConstants.headerTextColor
+        // headerStyle: styles.headerStyle,
+        headerTintColor: colorConstants.headerTextColor,
+        headerTransparent: true
       }
     }
-  }}, {
+  },
+  ConfirmImageScreen: {
+    screen: ConfirmImage,
+    navigationOptions: ({ navigation }) => {
+      return {
+        header: null
+      }
+  }},
+  }, {
   cardStyle: { backgroundColor: colorConstants.headerBackgroundColorVeryLight }
 })
 
@@ -87,7 +62,8 @@ const historyNavigator = createStackNavigator({
         headerStyle: styles.headerStyle,
         headerTintColor: colorConstants.headerTextColor
       }
-  }},
+    }
+  },
   DetailsScreen: {
     screen: Details,
     navigationOptions: ({ navigation }) => { 
@@ -95,7 +71,8 @@ const historyNavigator = createStackNavigator({
         headerStyle: styles.headerStyle,
         headerTintColor: colorConstants.headerTextColor
       }
-  }},
+    }
+  },
   ViewImageScreen: {
     screen: ViewImage,
     navigationOptions: ({ navigation }) => { 
@@ -103,7 +80,8 @@ const historyNavigator = createStackNavigator({
         headerStyle: styles.headerStyle,
         headerTintColor: colorConstants.headerTextColor
       }
-  }}
+    }
+  }
 }, {
   cardStyle: { backgroundColor: colorConstants.headerBackgroundColorVeryLight }
 })
@@ -125,7 +103,6 @@ const settingsNavigator = createStackNavigator({
 const drawerScreens = createDrawerNavigator({
   Home: homeNavigator,
   Upload: uploadNavigator,
-  // Camera: cameraNavigator,
   History: historyNavigator,
   Settings: settingsNavigator
 }, {
