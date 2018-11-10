@@ -104,7 +104,7 @@ export default class ConfirmImage extends Component {
             if (!response.ok) throw new Error(`Non-200 status code (${response.status})`)
 
             const classifications = await response.json() // jsonBody should be an array of objects with the keys specified in js/constants/schemas.ClassificationSchema.properties
-
+            console.log(classifications)
             // The response is handed off to IdentifiedScreen to decide whether to save the base64 as an image file or not
             // this.props.navigation.navigate('IdentifiedScreen', {
             //     id: this._lastId,
@@ -149,10 +149,14 @@ export default class ConfirmImage extends Component {
                 })
                 console.log('saved to failures')
                 Alert.alert('Saved to Failures')
+                this.props.navigation.goBack()
             })
             .catch(err => {
                 Alert.alert('Error', err.message)
+                this.props.navigation.goBack()
+
                 console.log('realm pipeline err',  err)
+                
             })
             // AsyncStorage.setItem(this._lastId, JSON.stringify({ success: false, error: err.message, base64: this.state.selectedImageBase64, date: new Date().toString() }))
             // Alert.alert('Failed to upload', err.message)

@@ -9,6 +9,7 @@ import Login from './js/components/Login.js'
 import ViewImage from './js/components/ViewImage.js'
 import ConfirmImage from './js/components/ConfirmImage.js'
 import Icon from 'react-native-vector-icons/Ionicons'
+import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
 import colorConstants from './js/constants/colors'
 import { StyleSheet } from 'react-native'
 import React from 'react'
@@ -58,6 +59,7 @@ const historyNavigator = createStackNavigator({
     navigationOptions: ({ navigation }) => {
       return {
         headerLeft: (<Icon name='ios-menu' size={30} onPress={() => navigation.toggleDrawer()} color={colorConstants.headerTextColor} style={styles.headerLeftButton} />),
+        headerRight: (<MaterialIcon name='delete' size={30} onPress={navigation.getParam('purge')} color={colorConstants.danger} style={styles.headerRightButton}/>),
         headerStyle: styles.headerStyle,
         headerTintColor: colorConstants.headerTextColor
       }
@@ -136,6 +138,11 @@ export default createStackNavigator({
 const styles = StyleSheet.create({
   headerLeftButton: {
     paddingLeft: 20,
+    flex: 1,
+    paddingVertical: 12
+  },
+  headerRightButton: {
+    paddingRight: 20,
     flex: 1,
     paddingVertical: 12
   },
