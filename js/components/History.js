@@ -169,7 +169,7 @@ export default class History extends Component {
           if (tempSuccess.length < 4) {
             tempSuccess.push(item)
           } else {
-            success.push(tempSuccess)
+            succeeded.push(tempSuccess)
             tempSuccess = []
             tempSuccess.push(item)
           }
