@@ -112,7 +112,7 @@ class Camera extends Component {
           visible={this.state.processing}
           textContent={'Processing...'}
           textStyle={{ color: '#FFF' }}
-          overlayColor='rgba(0, 0, 0, 0.5)'
+          overlayColor='rgba(0, 0, 0, 0.25)'
           animation='fade'
           color={colorConstants.headerBackgroundColor}
         />
@@ -135,7 +135,7 @@ class Camera extends Component {
     let data
     try {
       console.log('about to take picture')
-      this.setState({ processing: true })
+      // this.setState({ processing: true })
       data = await this.camera.takePictureAsync(options)
       this.props.navigation.navigate('ConfirmImageScreen', {
         width: data.width,
@@ -147,8 +147,8 @@ class Camera extends Component {
       Alert.alert('Error', err.message)
       console.error(err)
     }
-    this.setState({ processing: false })
-    this.camera.resumePreview()
+    // this.setState({ processing: false })
+    // this.camera.resumePreview()
   }
 }
 
