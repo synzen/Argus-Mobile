@@ -112,7 +112,7 @@ class Camera extends Component {
           visible={this.state.processing}
           textContent={'Processing...'}
           textStyle={{ color: '#FFF' }}
-          overlayColor='rgba(0, 0, 0, 1)'
+          overlayColor='rgba(0, 0, 0, 0.5)'
           animation='fade'
           color={colorConstants.headerBackgroundColor}
         />
@@ -131,13 +131,12 @@ class Camera extends Component {
   takePicture = async function() {
     this.bounceIcon()
     if (!this.state.mounted) return console.log(new Error('Unable to take picture because this.camera is undefined'))
-    const options = { quality: 0.5, base64: true, doNotSave: true };
+    const options = { quality: 0.5, base64: true, doNotSave: true, fixOrientation: true, pauseAfterCapture: true };
     let data
     try {
       console.log('about to take picture')
       this.setState({ processing: true })
       data = await this.camera.takePictureAsync(options)
-      this.camera.pausePreview()
       this.props.navigation.navigate('ConfirmImageScreen', {
         width: data.width,
         height: data.height,
