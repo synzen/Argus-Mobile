@@ -37,6 +37,7 @@ export default class Details extends Component {
         super(props)
         const params = this.props.navigation.state.params
         const classifications = params.classifications
+
         let max = {
             percent: 0,
             name: '',
@@ -81,16 +82,16 @@ export default class Details extends Component {
     }
 
     render () {
-        const navProps = this.props.navigation.state.params
+        const navParams = this.props.navigation.state.params
 
         return (
             <ScrollView>
                 <View style={styles.container}>
-                    <TouchableOpacity  onPress={() => this.props.navigation.navigate('ViewImageScreen', { base64: navProps.image.base64, width: navProps.image.width, height: navProps.image.height })}>
-                        <FastImage source={{uri: `data:image/jpg;base64,${navProps.image.base64}`}} style={ { ...styles.image, height: this.state.imageHeight, width: this.state.imageWidth } } resizeMode={FastImage.resizeMode.stretch}/>
+                    <TouchableOpacity  onPress={() => this.props.navigation.navigate('ViewImageScreen', { base64: navParams.image.base64, width: navParams.image.width, height: navParams.image.height })}>
+                        <FastImage source={{uri: `data:image/jpg;base64,${navParams.image.base64}`}} style={ { ...styles.image, height: this.state.imageHeight, width: this.state.imageWidth } } resizeMode={FastImage.resizeMode.stretch}/>
                     </TouchableOpacity>
-                    {/* <Image resizeMode='contain' source={{uri: navProps.uri}} style={styles.image}/> */}
-                    { !navProps.error ? 
+                    {/* <Image resizeMode='contain' source={{uri: navParams.uri}} style={styles.image}/> */}
+                    { !navParams.error ? 
                         (<View>
                             <Animated.Text style={ { ...styles.superHeading, opacity: this.state.fadeAnim } }>{this.state.selectedMatchName}</Animated.Text>
                             <Animated.Text style={{ ...styles.subheading, marginVertical: 5, opacity: this.state.fadeAnim }}>{(this.state.selectedMatchPercent * 100).toFixed(2)}% Score</Animated.Text>
@@ -98,7 +99,7 @@ export default class Details extends Component {
                             <Text style={styles.heading}>Matches</Text>
                             <View style={styles.badgeContainer}>
                                 { //[{ description: 'dog', score: 12 }, { description: 'doge', score: 50 }, { description: 'dogggo', score: 70 }, { description: 'doggo', score: 98 }, { description: 'duck', score: 35 }, { description: 'dogjesus', score: 85 }, { description: 'dogod', score: 75 }, { description: 'dug', score: 54 }, { description: 'donkey', score: 12 },]
-                                    navProps.classifications.map(item => {
+                                    navParams.classifications.map(item => {
                                     return <Badge key={item.description} selected={item.description === this.state.selectedMatchName} text={item.description} onPress={() => this.changeSelectedMatch(item)}></Badge>
                                 }) }
                             </View>
@@ -110,7 +111,7 @@ export default class Details extends Component {
                             <View style={styles.border}></View>
                             <Text style={styles.heading}>Response</Text>
                             {  this.state.showResponse ?
-                                <Text>{JSON.stringify(navProps.response, null, 2)}</Text>
+                                <Text>{JSON.stringify(navParams.response, null, 2)}</Text>
                                 :
                                 <View style={styles.wikipediaButton} ><Button onPress={() => this.setState({ showResponse: true })} title='Show' color={colorConstants.headerBackgroundColor}></Button></View>
                             }
@@ -119,7 +120,7 @@ export default class Details extends Component {
                         :
                         (<View>
                             <Text style={{ ...styles.superHeading, ...styles.dangerColor }}>Failed to Process</Text>
-                            <Text style={styles.heading}>{ navProps.error || 'Unknown Reason' }</Text>
+                            <Text style={styles.heading}>{ navParams.error || 'Unknown Reason' }</Text>
                             <View style={styles.border}></View>
                             
                         </View>)
@@ -129,21 +130,21 @@ export default class Details extends Component {
                         <View style={styles.miscInfoRow}>
                             <View style={styles.miscInfoItem}>
                                 <Text style={styles.subheading}>File Name</Text>
-                                <Text>{navProps.id}</Text>
+                                <Text>{navParams.id}</Text>
                             </View>
                             <View style={styles.miscInfoItem}>
                                 <Text style={styles.subheading}>Dimensions</Text>
-                                <Text>{navProps.image.width}x{navProps.image.height}</Text>
+                                <Text>{navParams.image.width}x{navParams.image.height}</Text>
                             </View>
                         </View>
                         <View style={styles.miscInfoRow}>
                             <View style={styles.miscInfoItem}>
                                 <Text style={styles.subheading}>Date Modified</Text>
-                                <Text>{navProps.date.toString()}</Text>
+                                <Text>{navParams.date.toString()}</Text>
                             </View>
                             <View style={styles.miscInfoItem}>
                                 {/* <Text style={styles.subheading}>File Size</Text>
-                                <Text>{navProps.size}</Text> */}
+                                <Text>{navParams.size}</Text> */}
                             </View>
 
                         </View>

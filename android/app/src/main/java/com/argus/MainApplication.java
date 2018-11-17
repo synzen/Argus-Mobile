@@ -7,7 +7,6 @@ import io.realm.react.RealmReactPackage;
 import com.imagepicker.ImagePickerPackage;
 import com.dylanvann.fastimage.FastImageViewPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
-import org.reactnative.camera.RNCameraPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
@@ -28,13 +27,12 @@ public class MainApplication extends Application implements ReactApplication {
     @Override
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
-          new MainReactPackage(),
-            new RealmReactPackage(),
-            new ImagePickerPackage(),
-            new FastImageViewPackage(),
-          new VectorIconsPackage(),
-          new RNCameraPackage(),
-          new RNFSPackage()
+        new MainReactPackage(),
+        new RealmReactPackage(),
+        new ImagePickerPackage(),
+        new FastImageViewPackage(),
+        new VectorIconsPackage(),
+        new RNFSPackage()
       );
     }
 

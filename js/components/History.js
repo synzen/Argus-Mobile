@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import generalConstants from '../constants/general.js'
 import Dialog from "react-native-dialog";
+import keyHolder from '../constants/keys.js'
 import FastImage from 'react-native-fast-image'
 import RNFS from 'react-native-fs'
 import {
@@ -11,9 +12,9 @@ import {
   Dimensions,
   Alert,
   FlatList,
+  SectionList,
   ScrollView,
-  LayoutAnimation,
-  Image
+  LayoutAnimation
 } from 'react-native';
 import schemas from '../constants/schemas.js'
 import colorConstants from '../constants/colors.js'
@@ -79,7 +80,9 @@ class HistoryTileRow extends Component {
   render () {
     return (
       <View style={styles.historyTileRow}>
-        {this.props.items.map(item => <HistoryTile key={item.id} length={this.tileLength} margin={this.tileMargin} data={item} navigate={this.props.navigate}/>)}
+        {this.props.items.map(item => {
+        return (<HistoryTile key={item.id} length={this.tileLength} margin={this.tileMargin} data={item} navigate={this.props.navigate}/>)
+      })}
       </View>
     )
   }
@@ -90,8 +93,25 @@ export default class History extends Component {
       title: 'History'
     }
 
-    getImageSize = (path, callback) => {
-      Image.getSize(path, (w, h) => callback(null, w, h), err => callback(err))
+    static getDerivedStateFromProps(nextProps, state) {
+      const params = nextProps.navigation.state.params
+      if (!params || !params.classifiedResults) return null
+      const newItems = []
+      for (const item of params.classifiedResults) {
+        let exists = false
+        for (const existingItem of state.items) {
+          if (existingItem.id === item.id) exists = true
+        }
+        if (exists === false) {
+          item.success = true
+          newItems.push(item)
+        }
+      }
+      if (newItems) {
+        return {
+          items: [ ...newItems, ...state.items ]
+        }
+      } else return null
     }
 
     constructor(props) {
@@ -103,58 +123,50 @@ export default class History extends Component {
           realm: undefined
         }
 
-        
-        Realm.open({ schema: schemas.all })
-        .then(realm => {
-          const aggregated = []
-          const succeeded = realm.objects(schemas.IdentifiedItemSchema.name).sorted('date', true).values()
-          const failed = realm.objects(schemas.FailedIdentifiedItemSchema.name).sorted('date', true).values()
-          for (s of succeeded) aggregated.push({ ...s, success: true })
-          for (f of failed) aggregated.push({ ...f, success: false })     
-          const succeededStateItems = []
-          const stateItems = []
-          const failedStateItems = []
-          let c = 0
-          for (item of aggregated) {
-            const localItem = item // Specifically define it here so when the item is referred to in the process, the localItem is referred to rather than the changing item in the for loop (closures)
-            RNFS.readFile(item.image.path, 'base64')
-            .then(data => {
-              const stateItem = { ...localItem }
-              stateItem.image.base64 = data
-              // if (localItem.success) succeededStateItems.push(stateItem)
-              // else failedStateItems.push(stateItem)
-              stateItems.push(stateItem)
-              if (++c === aggregated.length) this.setState({ items: stateItems, realm})
-            })
-            .catch(err => {
-              console.log(err)
-              if (++c === aggregated.length) this.setState({ items: stateItems, realm })
-            })
-          }
-        }).catch(console.log)
+        // setTimeout(() => {
+          Realm.open({ schema: schemas.all })
+          .then(realm => {
+            const aggregated = []
+            const succeeded = realm.objects(schemas.IdentifiedItemSchema.name).sorted('date', true).values()
+            const failed = realm.objects(schemas.FailedIdentifiedItemSchema.name).sorted('date', true).values()
+            for (s of succeeded) aggregated.push({ ...s, success: true })
+            for (f of failed) aggregated.push({ ...f, success: false })
+            const succeededStateItems = []
+            const stateItems = []
+            const failedStateItems = []
+            let c = 0
+            for (item of aggregated) {
+              const localItem = item // Specifically define it here so when the item is referred to in the process, the localItem is referred to rather than the changing item in the for loop (closures)
+              RNFS.readFile(item.image.path, 'base64')
+              .then(data => {
+                const stateItem = { ...localItem }
+                stateItem.image.base64 = data
+                // if (localItem.success) succeededStateItems.push(stateItem)
+                // else failedStateItems.push(stateItem)
+                stateItems.push(stateItem)
+                if (++c === aggregated.length) this.setState({ items: stateItems, realm})
+              })
+              .catch(err => {
+                console.log(err)                
+                if (++c === aggregated.length) this.setState({ items: stateItems, realm })
+              })
+            }
+          })
+          .catch(console.log)
+        // }, 500)
     }
 
     componentDidMount = () => {
+      const navState = this.props.navigation.state
+      if (!keyHolder.has(navState.routeName)) keyHolder.set(navState.routeName, navState.key)
       this.props.navigation.setParams({ purge: this.deleteItems })
-    }
-    
-    showDetails = item => {
-      this.props.navigation.navigate('DetailsScreen', item)
     }
 
     deleteItems = () => {
-      RNFS.unlink(generalConstants.photoDirectory)
-      .then(() => {
-        Realm.deleteFile({ schema: schemas.all })
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-        this.state.realm.close()
-        this.setState({ items: [] })
-      })
-      .catch(err => {
-        console.log(err)
-        Alert.alert(err.message)
-      })
-      
+      Realm.deleteFile({ schema: schemas.all })
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      this.state.realm.close()
+      this.setState({ items: [] })
     }
 
     render() {
@@ -207,13 +219,22 @@ export default class History extends Component {
             //   }}
             //   // ListFooterComponent= { () => <Button raised title='PURGE' backgroundColor={styles.dangerColor.color} onPress={this.deleteItems}></Button> }
             // />
-            <ScrollView style={styles.container}>
-              <Text style={ { ...material.subheading, ...styles.heading } }>Identified</Text>
-              { succeeded.map(item => <HistoryTileRow key={item[0].id + 'row'} items={item} tileCount={4} navigate={this.props.navigation.navigate}></HistoryTileRow> ) }
-              <Text style={ { ...material.subheading, ...styles.heading } }>Failed</Text>
-              { failed.map(item => <HistoryTileRow key={item[0].id + 'roww'} items={item} tileCount={4} navigate={this.props.navigation.navigate}></HistoryTileRow> ) }
+            // <ScrollView style={styles.container}>
+            //   <Text style={ { ...material.subheading, ...styles.heading } }>Identified</Text>
+            //   { succeeded.map(item => <HistoryTileRow key={item[0].id + 'row'} items={item} tileCount={4} navigate={this.props.navigation.navigate}></HistoryTileRow> ) }
+            //   <Text style={ { ...material.subheading, ...styles.heading } }>Failed</Text>
+            //   { failed.map(item => <HistoryTileRow key={item[0].id + 'roww'} items={item} tileCount={4} navigate={this.props.navigation.navigate}></HistoryTileRow> ) }
 
-            </ScrollView>
+            // </ScrollView>
+            <SectionList
+              renderItem={ ({ item }) =>  <HistoryTileRow items={item} tileCount={4} navigate={this.props.navigation.navigate}></HistoryTileRow>}
+              renderSectionHeader={ ({ section }) => <Text style={ { ...material.subheading, ...styles.heading } }>{ section.key }</Text> }
+              sections={[
+                { data: succeeded, key: 'Identified' },
+                { data: failed, key: 'Failed' }
+              ]}
+              keyExtractor={ (item, index) => item[0].id + 'row'}
+            />
             :
             (<View styles={styles.container}>
               <Text style={styles.emptyText}>You have no recent history.</Text>

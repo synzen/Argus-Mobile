@@ -119,55 +119,6 @@ export default class Settings extends Component {
         <ScrollView style={ styles.container }>
             <Text style={ { ...styles.category, borderTopWidth: 0 } }>General</Text>
             <SettingsItem icon='server' title='Host URI' value={this.state.host}></SettingsItem>
-            <Text style={ styles.category }>Camera</Text>
-            <SettingsItem icon='flash' title='Flash' value={this._capitalize(this.state.flash)} onPress={ () => this.setState({ dialog: true }) }>
-              <Dialog visible={this.state.dialog} onTouchOutside={() => this.setState({dialog: false})} rounded={true} dialogStyle={styles.shadow} dialogAnimation={new ScaleAnimation()} >
-                <View>
-                  <List items={[{
-                    text: 'Auto', 
-                    onPress: () => this.setFlash('auto')
-                  }, {
-                    text: 'On',
-                    onPress: () => this.setFlash('on')
-                  }, {
-                    text: 'Off',
-                    onPress: () => this.setFlash('off')
-                  }, {
-                    text: 'Torch',
-                    onPress: () => this.setFlash('torch')
-                  }]}
-                  />
-                </View>
-              </Dialog>
-            </SettingsItem>
-            <SettingsItem icon='image-filter-center-focus' title='Auto Focus' value={this._capitalize(this.state.focus)} onPress={ () => this.setState({ focusDialog: true }) } >
-              <Dialog visible={this.state.focusDialog} onTouchOutside={() => this.setState({focusDialog: false})} rounded={true} dialogStyle={styles.shadow} dialogAnimation={new ScaleAnimation()} >
-                <View>
-                  <List items={[{
-                    text: 'On',
-                    onPress: () => this.setFocus('on')
-                  }, {
-                    text: 'Off',
-                    onPress: () => this.setFocus('off')
-                  }]} 
-                  />
-                </View>
-              </Dialog>
-            </SettingsItem>
-            <SettingsItem icon='camera-switch' title='Switch Camera' value={this._capitalize(this.state.camera)} onPress={ () => this.setState({ cameraDialog: true }) } >
-            <Dialog visible={this.state.cameraDialog} onTouchOutside={() => this.setState({cameraDialog: false})} rounded={true} dialogStyle={styles.shadow} dialogAnimation={new ScaleAnimation()} >
-                <View>
-                  <List items={[{
-                    text: 'Front',
-                    onPress: () => this.setCamera('front')
-                  }, {
-                    text: 'Back',
-                    onPress: () => this.setCamera('back')
-                  }]} 
-                  />
-                </View>
-              </Dialog>
-            </SettingsItem>
             {/* <SettingsItem title='Flash' value={'on'}></SettingsItem> */}
             <Text style={ styles.category }>Miscellaneous</Text>
             <SettingsItem icon='information-outline' title='About' value='v0.0.1' onPress={() => Alert.alert('nigga plz')}>
@@ -182,8 +133,6 @@ export default class Settings extends Component {
   
 const styles = StyleSheet.create({
   shadow: {
-    // flex: 1,
-    // flexDirection: 'column',
     width: 300,
     borderWidth: 1,
     borderRadius: 2,
@@ -193,12 +142,10 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.8,
     shadowRadius: 2,
-    elevation: 1,
-    // padding: 10
+    elevation: 1
   },
   dialogOption: {
     padding: 20,
-    // backgroundColor: 'green'
   },
     container: {
       flex: 1,

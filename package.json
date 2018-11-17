@@ -15,7 +15,6 @@
     "@babel/runtime": "^7.1.2",
     "react": "16.6.0-alpha.8af6728",
     "react-native": "^0.57.1",
-    "react-native-camera": "^1.4.0",
     "react-native-dialog": "^5.4.0",
     "react-native-elements": "^0.19.1",
     "react-native-fast-image": "^5.0.11",
