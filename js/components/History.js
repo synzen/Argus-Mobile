@@ -165,7 +165,6 @@ export default class History extends Component {
     deleteItems = () => {
       Realm.deleteFile({ schema: schemas.all })
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-      this.state.realm.close()
       this.setState({ items: [] })
     }
 

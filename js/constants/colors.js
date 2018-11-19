@@ -5,6 +5,6 @@ export default {
   headerBackgroundColorVeryVeryLight: '#ECEFF1',
   headerTextColor: '#E0E0E0',
   danger: '#b00020',
-  success: '#007E33',
+  success: '#43A047',
   divider: '#bdbdbd'
 }
