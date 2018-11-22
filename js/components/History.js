@@ -14,6 +14,7 @@ import {
   FlatList,
   SectionList,
   ScrollView,
+  UIManager,
   LayoutAnimation
 } from 'react-native';
 import schemas from '../constants/schemas.js'
@@ -21,6 +22,7 @@ import colorConstants from '../constants/colors.js'
 import { Button, Card } from 'react-native-elements'
 import { material } from 'react-native-typography'
 import Realm from 'realm'
+UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
 const windowDimensions = Dimensions.get('window')
 
 // class HistoryItem extends Component {
@@ -123,7 +125,9 @@ export default class History extends Component {
           realm: undefined
         }
 
-        // setTimeout(() => {
+        // Add a 0 timeout to make this asynchronous for faster page load
+        setTimeout(() => {
+          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
           Realm.open({ schema: schemas.all })
           .then(realm => {
             const aggregated = []
@@ -153,7 +157,7 @@ export default class History extends Component {
             }
           })
           .catch(console.log)
-        // }, 500)
+        }, 0)
     }
 
     componentDidMount = () => {
@@ -164,7 +168,7 @@ export default class History extends Component {
 
     deleteItems = () => {
       Realm.deleteFile({ schema: schemas.all })
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
       this.setState({ items: [] })
     }
 

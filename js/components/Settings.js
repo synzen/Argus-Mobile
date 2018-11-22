@@ -82,36 +82,7 @@ export default class Settings extends Component {
           })
         })
     }
-
-    _capitalize = string => string.charAt(0).toUpperCase() + string.slice(1)
     
-    setFlash = function (flash) {
-      const originalValue = this.state.flash
-      this.setState({ flash, dialog: false })
-      AsyncStorage.setItem('camera.flash', flash).catch(err => {
-        console.log(err)
-        this.setState({ flash: originalValue })
-      })
-    }
-
-    setFocus = function (focus) {
-      const originalValue = this.state.focus
-      this.setState({ focus, focusDialog: false })
-      AsyncStorage.setItem('camera.focus', focus).catch(err => {
-        console.log(err)
-        this.setState({ focus: originalValue })
-      })
-    }
-
-    setCamera = function (camera) {
-      const originalValue = this.state.camera
-      this.setState({ camera, cameraDialog: false })
-      AsyncStorage.setItem('camera.camera', camera).catch(err => {
-        console.log(err)
-        this.setState({ camera: originalValue })
-      })
-    }
-
     render() {
       const { navigate } = this.props.navigation
 

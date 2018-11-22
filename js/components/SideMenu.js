@@ -22,23 +22,46 @@ import ImagePicker from 'react-native-image-picker'
 import { material, systemWeights } from 'react-native-typography'
 import schemas from '../constants/schemas.js'
 import colorConstants from '../constants/colors.js'
+import globalState from '../constants/state.js'
 import { NavigationActions } from 'react-navigation'
 
 const AnimatedIcon = Animated.createAnimatedComponent(EntypoIcon)
 UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
 
 export default class SideMenu extends Component {
+  static getDerivedStateFromProps(nextProps, state) {
+    const params = nextProps.navigation.state.params
+    console.log('params', params)
+    console.log('state email', state.email)
+    if (!params || !params.email || !params.password) return null
+    if (state.email !== params.email || state.password !== params.password) return { email: params.email, password: params.password }
+    else return null
+  }
+
   constructor(props) {
     super(props)
     this.state = {
       scaleAnim: new Animated.Value(1),
       expandUpload: false,
       uploading: false,
-      current: 0
+      current: 0,
+      email: ''
     }
+
+    AsyncStorage.getItem('login').then(login => {
+      if (!login) return
+      const acc = JSON.parse(login)
+      globalState.email = acc.email
+      globalState.password = acc.password
+      this.setState({ email: acc.email, password: acc.password })
+    })
+    
   }
 
   componentDidMount = function () {
+    const navState = this.props.navigation.state
+    console.log(navState.routeName)
+    if (!keyHolder.has(navState.routeName)) keyHolder.set(navState.routeName, navState.key)
     // Animated.timing(
     //   this.state.scaleAnim,
     //   { toValue: 1 }
@@ -141,13 +164,14 @@ export default class SideMenu extends Component {
 
       // Send the request
       const formData = new FormData();
-      formData.append('name', 'testName'); // you can append anyone.
+      formData.append('username', this.state.email) // you can append anyone.
+      formData.append('password', this.state.password)
       formData.append('photo', {
           uri: imageResponse.uri,
           type: 'image/jpeg', // or photo.type
           name: 'testPhotoName'
       })
-      response = await fetch(host, {
+      response = await fetch(host + '/classify', {
           method: 'POST',
           body: formData
       })
@@ -217,6 +241,32 @@ export default class SideMenu extends Component {
     this.setState({ uploading: false })
   }
 
+  accountAction = () => {
+    if (!this.state.email) this.props.navigation.navigate('Login')
+    else {
+      Alert.alert('Logout', 'Are you sure you want to logout?', [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Yes', onPress: () => {
+          AsyncStorage.removeItem('login').then(() => {
+            const setParamsAction = NavigationActions.setParams({
+              params: { logout: true },
+              key: keyHolder.get('HistoryScreen'),
+            })
+            const setParamsActionReset = NavigationActions.setParams({
+              params: { email: undefined },
+              key: this.props.navigation.state.key,
+            });
+            this.props.navigation.dispatch(setParamsActionReset)
+            this.props.navigation.dispatch(setParamsAction)
+            globalState.email = undefined
+            globalState.password = undefined
+            this.setState({ email: undefined })
+          })
+        }}
+      ])
+    }
+  }
+
   render () {
     const uploadDropdownViewStyle = this.state.expandUpload ? {  } : { height: 0, opacity: 0 }
     const uploadDropdownItemsStyle = this.state.expandUpload ? { overflow: 'hidden' } : { overflow: 'hidden', height: 0 }
@@ -232,8 +282,8 @@ export default class SideMenu extends Component {
                     { scaleY: this.state.scaleAnim }
                     ]}} name="eye" size={140} color='white'/>
             </View>
-            <TouchableOpacity style={styles.navItem} onPress={ () => { this.props.navigation.navigate('Login') } }>
-              <MaterialCommunityIcon name='login' size={30} style={styles.navIcon}/><Text>Login</Text>
+            <TouchableOpacity style={styles.navItem} onPress={this.accountAction}>
+              <MaterialCommunityIcon name={this.state.email ? 'logout' : 'login'} size={30} style={styles.navIcon}/><Text>{ this.state.email ? this.state.email : 'Login' }</Text>
             </TouchableOpacity>
             <View style={styles.border}></View>
 
@@ -270,7 +320,7 @@ export default class SideMenu extends Component {
             </TouchableOpacity>
 
             <View style={styles.border}></View>
-            <TouchableOpacity style={styles.navItem} onPress={ () => {} }>
+            <TouchableOpacity style={ {...styles.navItem, marginBottom: 20} } onPress={ () => {} }>
               <MaterialIcon name='feedback' size={30} style={styles.navIcon}/><Text>Send Feedback</Text>
             </TouchableOpacity>
         </ScrollView>

@@ -39,8 +39,8 @@ export default class HomeScreen extends Component {
       return (
         <View style={ styles.container }>
             <Dialog.Container visible={ this.state.showDialog }>
-            <Dialog.Title>Change Host</Dialog.Title>
-            <Dialog.Description>Enter the full URI, including protocol (http://), IP and port.</Dialog.Description>
+            <Dialog.Title>Change Domain</Dialog.Title>
+            <Dialog.Description>Enter the base URI, including protocol (http://), IP and port.</Dialog.Description>
             <Dialog.Input 
               autoCapitalize='none'
               autoCorrect={ false }
@@ -51,7 +51,8 @@ export default class HomeScreen extends Component {
             <Dialog.Button label="OK" onPress={ this.submitDialog.bind(this) } />
           </Dialog.Container>
             <View style={ styles.subcontainer}>
-                <Text style={{ textAlign: 'center', fontWeight: 'bold' }}>Host</Text>
+                <Text style={{ textAlign: 'center', fontWeight: 'bold' }}>Domain</Text>
+                <Text style={{ textAlign: 'center' }}>Do not include the routes. Only IP and host. The routes are manually added as /classify and /register.</Text>
                 <TextInput style={ styles.textAlignCenter } editable={ false } value={ this.state.host ? this.state.host : 'Specify host' } />
                 <TouchableOpacity
                     onPress={this.showDialog.bind(this)}

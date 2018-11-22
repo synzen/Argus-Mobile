@@ -5,6 +5,7 @@ import History from './js/components/History'
 import Settings from './js/components/Settings.js'
 import Details from './js/components/Details.js'
 import Login from './js/components/Login.js'
+// import Loading from './js/components/Loading.js'
 import ViewImage from './js/components/ViewImage.js'
 import Icon from 'react-native-vector-icons/Ionicons'
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
@@ -86,7 +87,13 @@ const drawerScreens = createDrawerNavigator({
 })
 
 export default createStackNavigator({
-  Drawer: {
+  // LoadingScreen: {
+  //   screen: Loading,
+  //   navigationOptions: {
+  //     header: null
+  //   }
+  // },
+  SideMenu: {
     screen: drawerScreens,
     navigationOptions: {
       header: null
@@ -105,9 +112,11 @@ export default createStackNavigator({
     }
   }
 }, {
+  // cardStyle: { backgroundColor: colorConstants.headerBackgroundColorVeryLight },
   transitionConfig: () => fromLeft(),
-  initialRouteName: 'Drawer'
+  initialRouteName: 'SideMenu'
 })
+
 
 const styles = StyleSheet.create({
   headerLeftButton: {
