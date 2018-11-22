@@ -31,7 +31,13 @@ export default class Login extends Component {
             loginForm: true,
             textOpacity: new Animated.Value(1),
             email: '',
-            password: ''
+            password: '',
+            registeringText: 'Registering...',
+            loggingInText: 'Logging In...',
+            registeringTextInterval: undefined,
+            loggingInTextInterval: undefined,
+            ellipsisInterval: undefined,
+            ellipsisText: ''
         }
     }
 
@@ -45,7 +51,7 @@ export default class Login extends Component {
         }
 
         if (!this.state.email || !this.state.password) return Alert.alert('Oopsy Daisy!', 'You missed your email or password')
-        this.setState({ processing: true })
+        this.startProcessState()
         try {
             const host = await AsyncStorage.getItem('host')
             if (!host) return Alert.alert('Error', 'A host has not been set.')
@@ -79,7 +85,7 @@ export default class Login extends Component {
             console.log(err)
             Alert.alert('Failed to Login', err.message)
         }
-        this.setState({ processing: false })
+        this.stopProcessState()
     }
 
     register = async () => {
@@ -92,7 +98,7 @@ export default class Login extends Component {
         }
 
         if (!this.state.email || !this.state.password) return Alert.alert('Oopsy Daisy!', 'You missed your email or password')
-        this.setState({ processing: true })
+        this.startProcessState()
         try {
             console.log(this.state.email)
             console.log(this.state.password)
@@ -128,6 +134,22 @@ export default class Login extends Component {
             console.log(err)
             Alert.alert('Failed to Register', err.message)
         }
+        this.stopProcessState()
+    }
+
+    startProcessState = () => {
+        const textStateValue = this.state.loginForm ? 'Logging In' : 'Registering'
+        this.setState({ processing: true, ellipsisText: `${textStateValue}...`, ellipsisInterval: setInterval(() => {
+            if (this.state.ellipsisText === `${textStateValue}...`) this.setState({ ellipsisText: textStateValue })
+            else if (this.state.ellipsisText === textStateValue) this.setState({ ellipsisText: `${textStateValue}.`})
+            else if (this.state.ellipsisText === `${textStateValue}.`) this.setState({ ellipsisText: `${textStateValue}..`})
+            else this.setState({ ellipsisText: `${textStateValue}...` })
+            // console.log(this.state)
+        }, 700) })
+    }
+
+    stopProcessState = () => {
+        clearInterval(this.state.ellipsisInterval)
         this.setState({ processing: false })
     }
 
@@ -135,15 +157,15 @@ export default class Login extends Component {
         return (
             <View style={styles.container}>
                 <Animated.View style={{ ...styles.headerTextContainer, opacity: this.state.textOpacity }}>
-                    <Text style={styles.headerText}>{this.state.loginForm === true ? this.state.processing ? 'Logging in...' : 'Log in' : this.state.processing ? 'Registering...' : 'Register'}</Text>
+                    <Text style={styles.headerText}>{this.state.processing ? this.state.ellipsisText : this.state.loginForm ? 'Log In' : 'Register'}</Text>
                     <Text style={styles.subheaderText}>{this.state.loginForm === true ? `Log in to see your saved classifications and access them from the web or anywhere.` : `Register to save your classifications and access them from the web or anywhere.`}</Text>
                 </Animated.View>
                 <TextInput style={styles.inputContainer} editable={!this.state.processing} onChangeText={t => this.setState({ email: t })} onSubmitEditing={this.state.loginForm ? this.login : this.register} style={styles.input} inputStyle={styles.inputContainer} underlineColorAndroid={colors.headerBackgroundColorLight} placeholder='Email'/>
                 <TextInput style={styles.inputContainer} editable={!this.state.processing} onChangeText={t => this.setState({ password: t })} onSubmitEditing={this.state.loginForm ?  this.login : this.register} style={styles.input} inputStyle={styles.inputContainer} underlineColorAndroid={colors.headerBackgroundColorLight} placeholder='Password' secureTextEntry={true} autoCapitalize='none' autoCorrect={false}/>
                 
                 <Text style={styles.forgotPassword}>Forgot Password?</Text>
-                <Button raised={this.state.loginForm} title={this.state.processing && this.state.loginForm ? 'Logging in...' : 'Log In' } containerViewStyle={styles.loginButtonContainer} disabled={this.state.processing} buttonStyle={ { ...styles.loginButton, backgroundColor: this.state.loginForm ? colors.success : colors.gray } } disabled={this.state.processing} onPress={this.login}/>
-                <Button raised={!this.state.loginForm} title={this.state.processing && !this.state.loginForm ? 'Registering...' : 'Register'} containerViewStyle={styles.loginButtonContainer2} disabled={this.state.processing} buttonStyle={{ backgroundColor: this.state.loginForm ? colors.gray : colors.blue }} onPress={this.register}/>
+                <Button raised={this.state.loginForm} loading={this.state.loginForm && this.state.processing} title={this.state.processing && this.state.loginForm ? 'Logging in...' : 'Log In' } containerViewStyle={styles.loginButtonContainer} disabled={this.state.processing} buttonStyle={ { ...styles.loginButton, backgroundColor: this.state.loginForm ? colors.success : colors.gray } } disabled={this.state.processing} onPress={this.login}/>
+                <Button raised={!this.state.loginForm} loading={!this.state.loginForm && this.state.processing} title={this.state.processing && !this.state.loginForm ? 'Registering...' : 'Register'} containerViewStyle={styles.loginButtonContainer2} disabled={this.state.processing} buttonStyle={{ backgroundColor: this.state.loginForm ? colors.gray : colors.blue }} onPress={this.register}/>
                 {/* </View> */}
                 
             </View>

@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
+  ActivityIndicator,
   Alert,
   FlatList,
   SectionList,
@@ -25,42 +26,6 @@ import Realm from 'realm'
 UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
 const windowDimensions = Dimensions.get('window')
 
-// class HistoryItem extends Component {
-//   constructor(props) {
-//     super(props)
-//     this.state = {
-//       showDialog: false,
-//       bestMatchedDescription: ''
-//     }
-
-//     const classifications = this.props.classifications
-//     if (!classifications) return
-
-//     let maxScore = 0
-//     classifications.forEach(item => {
-//       if (item.score > maxScore) {
-//         maxScore = item.score
-//         this.state.bestMatchedDescription = item.description
-//       }
-//     })
-//   }
-
-//   _showErr = function () {
-//     Alert.alert('Failed to Process', this.props.error || 'Unknown Error')
-//   }
-
-//   _boolToElem = b => b === true ? <Text style={styles.successColor}>{ this.state.bestMatchedDescription || 'Unknown Item' }</Text> : <Text style={styles.dangerColor}>Failed to Process</Text>
-
-//   render () {
-//     return (
-//       <TouchableOpacity style={styles.historyItem} onPress={this.props.onPress}>
-//         <FastImage style={styles.historyImage} source={{ uri: `data:image/jpg;base64,${this.props.image.base64}` }}/>
-//         <Text style={styles.historyText}>{ this._boolToElem(this.props.success) } {`\n\n${this.props.date}`}</Text>
-//       </TouchableOpacity>
-
-//     )
-//   }
-// }
 function HistoryTile (props) {
   return (
     <TouchableOpacity onPress={ () => props.navigate('DetailsScreen', props.data) }><FastImage source={{ uri: `data:image/jpg;base64,${props.data.image.base64}` }} style={{ ...styles.historyTile, height: props.length, width: props.length, margin: props.margin / 2 }}/></TouchableOpacity>
@@ -122,7 +87,8 @@ export default class History extends Component {
           items: [],
           successfulItems: [],
           failedItems: [],
-          realm: undefined
+          realm: undefined,
+          loading: true
         }
 
         // Add a 0 timeout to make this asynchronous for faster page load
@@ -145,14 +111,12 @@ export default class History extends Component {
               .then(data => {
                 const stateItem = { ...localItem }
                 stateItem.image.base64 = data
-                // if (localItem.success) succeededStateItems.push(stateItem)
-                // else failedStateItems.push(stateItem)
                 stateItems.push(stateItem)
-                if (++c === aggregated.length) this.setState({ items: stateItems, realm})
+                if (++c === aggregated.length) this.setState({ items: stateItems, realm, loading: false })
               })
               .catch(err => {
                 console.log(err)                
-                if (++c === aggregated.length) this.setState({ items: stateItems, realm })
+                if (++c === aggregated.length) this.setState({ items: stateItems, realm, loading: false })
               })
             }
           })
@@ -202,7 +166,10 @@ export default class History extends Component {
       if (tempFailed.length > 0) failed.push(tempFailed)
 
 
-      return this.state.items.length > 0 ? 
+      return this.state.loading ?
+        <View style={styles.loadingView}><ActivityIndicator size='large'/></View>
+        :
+        this.state.items.length > 0 ? 
             // <FlatList
             //   style={styles.container}
             //   data={rows}
@@ -248,6 +215,11 @@ export default class History extends Component {
 
   
 const styles = StyleSheet.create({
+  loadingView: {
+    flex: 1,
+    justifyContent: 'center',
+    alignContent: 'center'
+  },
   dangerColor: {
     color: '#b00020'
   },
