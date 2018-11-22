@@ -35,7 +35,7 @@ export default class Login extends Component {
         }
     }
 
-    login = (email = this.state.email, password = this.state.password) => {
+    login = async () => {
         // If it's the register form, change it to login form
         if (!this.state.loginForm) {
             return Animated.timing(this.state.textOpacity, {toValue: 0, duration: 100}).start(() => {
@@ -44,10 +44,45 @@ export default class Login extends Component {
             })
         }
 
-        if (!email || !password) return Alert.alert('Oopsy Daisy!', 'You missed your email or password')
+        if (!this.state.email || !this.state.password) return Alert.alert('Oopsy Daisy!', 'You missed your email or password')
+        this.setState({ processing: true })
+        try {
+            const host = await AsyncStorage.getItem('host')
+            if (!host) return Alert.alert('Error', 'A host has not been set.')
+            const res = await fetch(`${host}/login`/*'http://18.220.69.245:6000/register'*/, {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username: this.state.email, password: this.state.password })
+            })
+
+            console.log(res)
+            if (!res.ok) throw new Error(`Non-200 status code (${res.status})`)
+        
+            const json = await res.json()
+            await AsyncStorage.setItem('login', JSON.stringify({ email: this.state.email, password: this.state.password }))
+            globalState.email = this.state.email
+            globalState.password = this.state.password
+            const setParamsAction = NavigationActions.setParams({
+                params: { email: this.state.email },
+                key: keyHolder.get('SideMenu'),
+            })
+            console.log(keyHolder.get('SideMenu'))
+            this.props.navigation.dispatch(setParamsAction)
+            this.props.navigation.goBack()
+            Alert.alert('Success', `You are now logged in as, ${this.state.email}!`)
+
+            console.log(json)
+        } catch (err) {
+            console.log(err)
+            Alert.alert('Failed to Login', err.message)
+        }
+        this.setState({ processing: false })
     }
 
-    register = async (email = this.state.email, password = this.state.password) => {
+    register = async () => {
         // If it's the login form, change it to register form
         if (this.state.loginForm) {
             return Animated.timing(this.state.textOpacity, {toValue: 0, duration: 100}).start(() => {
@@ -56,11 +91,11 @@ export default class Login extends Component {
             })
         }
 
-        if (!email || !password) return Alert.alert('Oopsy Daisy!', 'You missed your email or password')
+        if (!this.state.email || !this.state.password) return Alert.alert('Oopsy Daisy!', 'You missed your email or password')
+        this.setState({ processing: true })
         try {
             console.log(this.state.email)
             console.log(this.state.password)
-            console.log({ password: password, username: this.state.email })
             const host = await AsyncStorage.getItem('host')
             if (!host) return Alert.alert('Error', 'A host has not been set.')
             const res = await fetch(`${host}/register`/*'http://18.220.69.245:6000/register'*/, {
@@ -91,19 +126,20 @@ export default class Login extends Component {
             console.log(json)
         } catch (err) {
             console.log(err)
-            Alert.alert('Error', err.message)
+            Alert.alert('Failed to Register', err.message)
         }
+        this.setState({ processing: false })
     }
 
     render () {
         return (
             <View style={styles.container}>
                 <Animated.View style={{ ...styles.headerTextContainer, opacity: this.state.textOpacity }}>
-                    <Text style={styles.headerText}>{this.state.loginForm === true ? 'Login' : 'Register'}</Text>
+                    <Text style={styles.headerText}>{this.state.loginForm === true ? this.state.processing ? 'Logging in...' : 'Log in' : this.state.processing ? 'Registering...' : 'Register'}</Text>
                     <Text style={styles.subheaderText}>{this.state.loginForm === true ? `Log in to see your saved classifications and access them from the web or anywhere.` : `Register to save your classifications and access them from the web or anywhere.`}</Text>
                 </Animated.View>
-                <TextInput style={styles.inputContainer} onChangeText={t => this.setState({ email: t })} onSubmitEditing={this.state.loginForm ? this.login : this.register} style={styles.input} inputStyle={styles.inputContainer} underlineColorAndroid={colors.headerBackgroundColorLight} placeholder='Email'/>
-                <TextInput style={styles.inputContainer} onChangeText={t => this.setState({ password: t })} onSubmitEditing={this.state.loginForm ?  this.login : this.register} style={styles.input} inputStyle={styles.inputContainer} underlineColorAndroid={colors.headerBackgroundColorLight} placeholder='Password' secureTextEntry={true} autoCapitalize='none' autoCorrect={false}/>
+                <TextInput style={styles.inputContainer} editable={!this.state.processing} onChangeText={t => this.setState({ email: t })} onSubmitEditing={this.state.loginForm ? this.login : this.register} style={styles.input} inputStyle={styles.inputContainer} underlineColorAndroid={colors.headerBackgroundColorLight} placeholder='Email'/>
+                <TextInput style={styles.inputContainer} editable={!this.state.processing} onChangeText={t => this.setState({ password: t })} onSubmitEditing={this.state.loginForm ?  this.login : this.register} style={styles.input} inputStyle={styles.inputContainer} underlineColorAndroid={colors.headerBackgroundColorLight} placeholder='Password' secureTextEntry={true} autoCapitalize='none' autoCorrect={false}/>
                 
                 <Text style={styles.forgotPassword}>Forgot Password?</Text>
                 <Button raised={this.state.loginForm} title={this.state.processing && this.state.loginForm ? 'Logging in...' : 'Log In' } containerViewStyle={styles.loginButtonContainer} disabled={this.state.processing} buttonStyle={ { ...styles.loginButton, backgroundColor: this.state.loginForm ? colors.success : colors.gray } } disabled={this.state.processing} onPress={this.login}/>

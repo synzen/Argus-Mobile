@@ -52,7 +52,7 @@ export default class HomeScreen extends Component {
           </Dialog.Container>
             <View style={ styles.subcontainer}>
                 <Text style={{ textAlign: 'center', fontWeight: 'bold' }}>Domain</Text>
-                <Text style={{ textAlign: 'center' }}>Do not include the routes. Only IP and host. The routes are manually added as /classify and /register.</Text>
+                <Text style={{ textAlign: 'center' }}>Do not include the routes. Only IP and host. The routes are manually added as/classify, /register and /login.</Text>
                 <TextInput style={ styles.textAlignCenter } editable={ false } value={ this.state.host ? this.state.host : 'Specify host' } />
                 <TouchableOpacity
                     onPress={this.showDialog.bind(this)}
