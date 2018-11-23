@@ -5,6 +5,7 @@ import {
     StyleSheet,
     TextInput,
     UIManager,
+    ScrollView,
     Animated,
     LayoutAnimation,
     Alert,
@@ -148,27 +149,28 @@ export default class Login extends Component {
 
     render () {
         return (
-            <View style={styles.container}>
+            <ScrollView style={styles.container}>
                 <Animated.View style={{ ...styles.headerTextContainer, opacity: this.state.textOpacity }}>
                     <Text style={styles.headerText}>{this.state.processing ? this.state.ellipsisText : this.state.loginForm ? 'Log In' : 'Register'}</Text>
                     <Text style={styles.subheaderText}>{this.state.loginForm === true ? `Log in to see your saved classifications and access them from the web or anywhere.` : `Register to save your classifications and access them from the web or anywhere.`}</Text>
                 </Animated.View>
-                <TextInput style={styles.inputContainer} editable={!this.state.processing} onChangeText={t => this.setState({ email: t })} onSubmitEditing={this.state.loginForm ? this.login : this.register} style={styles.input} inputStyle={styles.inputContainer} underlineColorAndroid={colorConstants.headerBackgroundColorLight} placeholder='Email' placeholderTextColor={colorConstants.textDisabled}/>
-                <TextInput style={styles.inputContainer} editable={!this.state.processing} onChangeText={t => this.setState({ password: t })} onSubmitEditing={this.state.loginForm ?  this.login : this.register} style={styles.input} inputStyle={styles.inputContainer} underlineColorAndroid={colorConstants.headerBackgroundColorLight} placeholder='Password' placeholderTextColor={colorConstants.textDisabled} secureTextEntry={true} autoCapitalize='none' autoCorrect={false}/>
+                <TextInput style={styles.inputContainer} selectionColor={colorConstants.blue} editable={!this.state.processing} onChangeText={t => this.setState({ email: t })} onSubmitEditing={this.state.loginForm ? this.login : this.register} style={styles.input} underlineColorAndroid={colorConstants.headerBackgroundColorLight} placeholder='Email' placeholderTextColor={colorConstants.textDisabled}/>
+                <TextInput style={styles.inputContainer} editable={!this.state.processing} selectionColor={colorConstants.blue} onChangeText={t => this.setState({ password: t })} onSubmitEditing={this.state.loginForm ?  this.login : this.register} style={styles.input} underlineColorAndroid={colorConstants.headerBackgroundColorLight} placeholder='Password' placeholderTextColor={colorConstants.textDisabled} secureTextEntry={true} autoCapitalize='none' autoCorrect={false}/>
                 
                 <Text style={styles.forgotPassword}>Forgot Password?</Text>
                 <Button raised={this.state.loginForm} loading={this.state.loginForm && this.state.processing} title={this.state.processing && this.state.loginForm ? 'Logging in...' : 'Log In' } containerViewStyle={styles.loginButtonContainer} disabled={this.state.processing} buttonStyle={ { ...styles.loginButton, backgroundColor: this.state.loginForm ? colorConstants.success : colorConstants.gray } } disabled={this.state.processing} onPress={this.login}/>
                 <Button raised={!this.state.loginForm} loading={!this.state.loginForm && this.state.processing} title={this.state.processing && !this.state.loginForm ? 'Registering...' : 'Register'} containerViewStyle={styles.loginButtonContainer2} disabled={this.state.processing} buttonStyle={{ backgroundColor: this.state.loginForm ? colorConstants.gray : colorConstants.blue }} onPress={this.register}/>
                 {/* </View> */}
                 
-            </View>
+            </ScrollView>
         )
     }
 }
 
 const styles = StyleSheet.create({
     container: {
-        margin: 10
+        // margin: 10
+        paddingHorizontal: 10
     },
     headerTextContainer: {
         marginTop: 30,
@@ -207,8 +209,9 @@ const styles = StyleSheet.create({
         marginVertical: 5
     },
     inputContainer: {
-        // borderBottomColor: 'black',
         borderRadius: 5,
-        flex: 1
+        flex: 1,
+        backgroundColor: 'white',
+        color: '#FFFFFF'
     }
 })
