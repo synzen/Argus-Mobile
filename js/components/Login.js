@@ -10,7 +10,7 @@ import {
     Alert,
     Text
 } from 'react-native';
-import colors from '../constants/colors.js'
+import colorConstants from '../constants/colors.js'
 import { Button } from 'react-native-elements'
 import { material } from 'react-native-typography'
 import { NavigationActions } from 'react-navigation'
@@ -32,10 +32,6 @@ export default class Login extends Component {
             textOpacity: new Animated.Value(1),
             email: '',
             password: '',
-            registeringText: 'Registering...',
-            loggingInText: 'Logging In...',
-            registeringTextInterval: undefined,
-            loggingInTextInterval: undefined,
             ellipsisInterval: undefined,
             ellipsisText: ''
         }
@@ -75,11 +71,9 @@ export default class Login extends Component {
                 params: { email: this.state.email },
                 key: keyHolder.get('SideMenu'),
             })
-            console.log(keyHolder.get('SideMenu'))
             this.props.navigation.dispatch(setParamsAction)
             this.props.navigation.goBack()
             Alert.alert('Success', `You are now logged in as, ${this.state.email}!`)
-
             console.log(json)
         } catch (err) {
             console.log(err)
@@ -144,7 +138,6 @@ export default class Login extends Component {
             else if (this.state.ellipsisText === textStateValue) this.setState({ ellipsisText: `${textStateValue}.`})
             else if (this.state.ellipsisText === `${textStateValue}.`) this.setState({ ellipsisText: `${textStateValue}..`})
             else this.setState({ ellipsisText: `${textStateValue}...` })
-            // console.log(this.state)
         }, 700) })
     }
 
@@ -160,12 +153,12 @@ export default class Login extends Component {
                     <Text style={styles.headerText}>{this.state.processing ? this.state.ellipsisText : this.state.loginForm ? 'Log In' : 'Register'}</Text>
                     <Text style={styles.subheaderText}>{this.state.loginForm === true ? `Log in to see your saved classifications and access them from the web or anywhere.` : `Register to save your classifications and access them from the web or anywhere.`}</Text>
                 </Animated.View>
-                <TextInput style={styles.inputContainer} editable={!this.state.processing} onChangeText={t => this.setState({ email: t })} onSubmitEditing={this.state.loginForm ? this.login : this.register} style={styles.input} inputStyle={styles.inputContainer} underlineColorAndroid={colors.headerBackgroundColorLight} placeholder='Email'/>
-                <TextInput style={styles.inputContainer} editable={!this.state.processing} onChangeText={t => this.setState({ password: t })} onSubmitEditing={this.state.loginForm ?  this.login : this.register} style={styles.input} inputStyle={styles.inputContainer} underlineColorAndroid={colors.headerBackgroundColorLight} placeholder='Password' secureTextEntry={true} autoCapitalize='none' autoCorrect={false}/>
+                <TextInput style={styles.inputContainer} editable={!this.state.processing} onChangeText={t => this.setState({ email: t })} onSubmitEditing={this.state.loginForm ? this.login : this.register} style={styles.input} inputStyle={styles.inputContainer} underlineColorAndroid={colorConstants.headerBackgroundColorLight} placeholder='Email' placeholderTextColor={colorConstants.textDisabled}/>
+                <TextInput style={styles.inputContainer} editable={!this.state.processing} onChangeText={t => this.setState({ password: t })} onSubmitEditing={this.state.loginForm ?  this.login : this.register} style={styles.input} inputStyle={styles.inputContainer} underlineColorAndroid={colorConstants.headerBackgroundColorLight} placeholder='Password' placeholderTextColor={colorConstants.textDisabled} secureTextEntry={true} autoCapitalize='none' autoCorrect={false}/>
                 
                 <Text style={styles.forgotPassword}>Forgot Password?</Text>
-                <Button raised={this.state.loginForm} loading={this.state.loginForm && this.state.processing} title={this.state.processing && this.state.loginForm ? 'Logging in...' : 'Log In' } containerViewStyle={styles.loginButtonContainer} disabled={this.state.processing} buttonStyle={ { ...styles.loginButton, backgroundColor: this.state.loginForm ? colors.success : colors.gray } } disabled={this.state.processing} onPress={this.login}/>
-                <Button raised={!this.state.loginForm} loading={!this.state.loginForm && this.state.processing} title={this.state.processing && !this.state.loginForm ? 'Registering...' : 'Register'} containerViewStyle={styles.loginButtonContainer2} disabled={this.state.processing} buttonStyle={{ backgroundColor: this.state.loginForm ? colors.gray : colors.blue }} onPress={this.register}/>
+                <Button raised={this.state.loginForm} loading={this.state.loginForm && this.state.processing} title={this.state.processing && this.state.loginForm ? 'Logging in...' : 'Log In' } containerViewStyle={styles.loginButtonContainer} disabled={this.state.processing} buttonStyle={ { ...styles.loginButton, backgroundColor: this.state.loginForm ? colorConstants.success : colorConstants.gray } } disabled={this.state.processing} onPress={this.login}/>
+                <Button raised={!this.state.loginForm} loading={!this.state.loginForm && this.state.processing} title={this.state.processing && !this.state.loginForm ? 'Registering...' : 'Register'} containerViewStyle={styles.loginButtonContainer2} disabled={this.state.processing} buttonStyle={{ backgroundColor: this.state.loginForm ? colorConstants.gray : colorConstants.blue }} onPress={this.register}/>
                 {/* </View> */}
                 
             </View>
@@ -185,11 +178,12 @@ const styles = StyleSheet.create({
     },
     headerText: {
         ...material.display1,
+        color: colorConstants.textPrimary,
         marginBottom: 15
     },
     subheaderText: {
         ...material.subheadingWhite,
-        color: colors.headerBackgroundColorLight,
+        color: colorConstants.textSecondary,
     },
     inputWrapper: {
         alignContent: 'center',
@@ -202,10 +196,11 @@ const styles = StyleSheet.create({
         marginTop: 10
     },
     forgotPassword: {
-        marginLeft: 18
+        marginLeft: 18,
+        color: colorConstants.textSecondary
     },
     loginButton: {
-        backgroundColor: colors.success
+        backgroundColor: colorConstants.success
     },
     input: {
         marginHorizontal: 15,

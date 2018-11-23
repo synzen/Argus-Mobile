@@ -1,16 +1,18 @@
 import React, { Component } from 'react'
 import CameraDefaults from '../constants/camera.js'
-import { Alert, AsyncStorage, Picker } from 'react-native'
 // import Dialog from "react-native-dialog";
 import { material } from 'react-native-typography'
+import colorConstants from '../constants/colors'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import Dialog, { ScaleAnimation } from 'react-native-popup-dialog';
+import Dialog from "react-native-dialog";
 import {
-    Text,
-    TouchableHighlight,
-    View,
-    ScrollView,
-    StyleSheet,
+  Alert,
+  AsyncStorage,
+  Text,
+  TouchableHighlight,
+  View,
+  ScrollView,
+  StyleSheet,
 } from 'react-native';
 
 class SettingsItem extends Component {
@@ -26,13 +28,12 @@ class SettingsItem extends Component {
   render () {
     // Each must have an onPress function for the highlight effect to appear
     return (
-      <TouchableHighlight style={styles.settingsItem} onPress={ () => this.props.onPress ? this.props.onPress() : undefined } underlayColor='#E0E0E0' activeOpacity={1}>
+      <TouchableHighlight style={styles.settingsItem} onPress={ () => this.props.onPress ? this.props.onPress() : undefined } underlayColor={colorConstants.headerBackgroundColorVeryLight} activeOpacity={1}>
         <View style={styles.settingsItemContainer}>
-          <Icon name={ this.props.icon } size={30} style={styles.settingsItemTextContainer}/>
+          <Icon name={ this.props.icon } size={30} style={styles.settingsItemTextContainer} color='white'/>
           <View style={styles.settingsItemTextContainer}>
               <Text style={styles.settingsItemTitle}>{ this.props.title }</Text>
               <Text style={styles.settingsItemValue}>{ this.props.value }</Text>
-              {this.props.children}
           </View>
           { this.props.children }
         </View>
@@ -69,8 +70,7 @@ export default class Settings extends Component {
             focus: CameraDefaults.focus,
             camera: CameraDefaults.camera,
             dialog: false,
-            focusDialog: false,
-            cameraDialog: false
+            hostDialog: false
         }
         AsyncStorage.multiGet(['camera.flash', 'camera.focus', 'camera.camera', 'host']).then(vals => {
           vals.map(item => {
@@ -82,6 +82,13 @@ export default class Settings extends Component {
           })
         })
     }
+
+    setHost = () => {
+      this.setState({ hostDialog: false })
+      AsyncStorage.setItem('host', this.state.host).catch(err => {
+          Alert.alert('Failed to save host to storage', err.message, [ { text: 'OK' }])
+      })
+    }
     
     render() {
       const { navigate } = this.props.navigation
@@ -89,10 +96,27 @@ export default class Settings extends Component {
       return (
         <ScrollView style={ styles.container }>
             <Text style={ { ...styles.category, borderTopWidth: 0 } }>General</Text>
-            <SettingsItem icon='server' title='Host URI' value={this.state.host}></SettingsItem>
+
+            <SettingsItem icon='server' title='Domain URI' value={this.state.host} onPress={() => this.setState({ hostDialog: true })}>
+              <Dialog.Container visible={ this.state.hostDialog } onBackdropPress={() => this.setState({ hostDialog: false })}>
+                <Dialog.Title>Change Domain</Dialog.Title>
+                <Dialog.Description>Enter the base URI, including protocol (http://), IP and port. Do not include the routes - the routes automatically used are /classify, /register, /login and /probe.</Dialog.Description>
+                <Dialog.Input 
+                  autoCapitalize='none'
+                  autoCorrect={ false }
+                  underlineColorAndroid={'black'}
+                  onChangeText={ host => this.setState({ host }) }
+                >{ this.state.host }</Dialog.Input>
+                <Dialog.Button label="Close" onPress={() => this.setState({ hostDialog: false })} />
+                <Dialog.Button label="OK" onPress={this.setHost} />
+              </Dialog.Container>
+            </SettingsItem>
+
             {/* <SettingsItem title='Flash' value={'on'}></SettingsItem> */}
             <Text style={ styles.category }>Miscellaneous</Text>
+
             <SettingsItem icon='information-outline' title='About' value='v0.0.1' onPress={() => Alert.alert('nigga plz')}>
+            
             </SettingsItem>
 
 
@@ -126,7 +150,8 @@ const styles = StyleSheet.create({
       paddingTop: 20,
       fontWeight: 'bold',
       borderTopWidth: 1,
-      borderTopColor: '#bdbdbd'
+      borderTopColor: '#bdbdbd',
+      color: colorConstants.textPrimary
     }, 
     settingsItem: {
       flex: 1,
@@ -151,13 +176,16 @@ const styles = StyleSheet.create({
 
     settingsItemTitle: {
         // fontWeight: 'bold',
-        color: 'black',
+        // color: 'black',
+        ...material.subheading,
+        color: colorConstants.textSecondary,
         marginBottom: 2,
         paddingHorizontal: 10,
-        ...material.subheading
+        
     },
     settingsItemValue: {
       paddingHorizontal: 10,
+      color: colorConstants.textDisabled,
     }
   });
   

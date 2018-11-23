@@ -23,6 +23,7 @@ import colorConstants from '../constants/colors.js'
 import { Button, Card } from 'react-native-elements'
 import { material } from 'react-native-typography'
 import Realm from 'realm'
+import colors from '../constants/colors.js';
 UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
 const windowDimensions = Dimensions.get('window')
 
@@ -197,7 +198,7 @@ export default class History extends Component {
 
             // </ScrollView>
             <SectionList
-              renderItem={ ({ item }) =>  <HistoryTileRow items={item} tileCount={4} navigate={this.props.navigation.navigate}></HistoryTileRow>}
+              renderItem={ ({ item }) =>  <HistoryTileRow items={item} tileCount={3} navigate={this.props.navigation.navigate}></HistoryTileRow>}
               renderSectionHeader={ ({ section }) => <Text style={ { ...material.subheading, ...styles.heading } }>{ section.key }</Text> }
               sections={[
                 { data: succeeded, key: 'Identified' },
@@ -221,7 +222,7 @@ const styles = StyleSheet.create({
     alignContent: 'center'
   },
   dangerColor: {
-    color: '#b00020'
+    color: colors.gray
   },
   successColor: {
     color: '#007E33'
@@ -270,7 +271,8 @@ const styles = StyleSheet.create({
     margin: 30
   },
   heading: {
-    margin: 10
+    margin: 10,
+    color: colorConstants.headerTextColor
   }
 });
   

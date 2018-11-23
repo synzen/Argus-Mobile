@@ -283,18 +283,18 @@ export default class SideMenu extends Component {
                     ]}} name="eye" size={140} color='white'/>
             </View>
             <TouchableOpacity style={styles.navItem} onPress={this.accountAction}>
-              <MaterialCommunityIcon name={this.state.email ? 'logout' : 'login'} size={30} style={styles.navIcon}/><Text>{ this.state.email ? this.state.email : 'Login' }</Text>
+              <MaterialCommunityIcon name={this.state.email ? 'logout' : 'login'} size={30} style={styles.navIcon}/><Text style={styles.navItemText}>{ this.state.email ? this.state.email : 'Login' }</Text>
             </TouchableOpacity>
             <View style={styles.border}></View>
 
-            <TouchableOpacity style={styles.navItem} onPress={ () => this.navigate('HomeScreen', 0) }>
-              <MaterialIcon name='home' size={30} style={styles.navIcon}/><Text style={ this.state.current === 0 ? { fontWeight: 'bold' } : {} }>Home</Text>
+            <TouchableOpacity style={styles.navItem} onPress={ () => this.navigate('DashboardScreen', 0) }>
+              <MaterialIcon name='dashboard' size={30} style={styles.navIcon}/><Text style={ this.state.current === 0 ? { ...styles.navItemText, fontWeight: 'bold' } : styles.navItemText }>Dashboard</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.navItem} onPress={ () => /*this.navigate('CameraScreen', 1)*/ this.toggleUploadDropdown() }>
               <MaterialIcon name='cloud-upload' size={30} style={styles.navIcon}/>
               <View style={styles.navItemDropdownView}>
-                <Text style={this.state.current === 1 ? { ...styles.navItemDropdownText, fontWeight: 'bold', alignSelf: 'center' } : { ...styles.navItemDropdownText, alignSelf: 'center' } }>Upload</Text>
+                <Text style={this.state.current === 1 ? { ...styles.navItemText, ...styles.navItemDropdownText, fontWeight: 'bold', alignSelf: 'center' } : { ...styles.navItemText, ...styles.navItemDropdownText, alignSelf: 'center' } }>Upload</Text>
                 <MaterialIcon name={this.state.expandUpload ? 'arrow-drop-up' : 'arrow-drop-down'} size={30} style={styles.navItemDropdownIcon}/>
               </View>
 
@@ -303,25 +303,25 @@ export default class SideMenu extends Component {
 
             <View style={uploadDropdownViewStyle}>
               <TouchableOpacity style={{...styles.subNavItem, ...uploadDropdownItemsStyle}} onPress={ this.clickUploadImage }>
-                <MaterialIcon name='image' size={30} style={styles.navIcon}/><Text style={ this.state.current === 1 ? { fontWeight: 'bold' } : {} }>Image</Text>
+                <MaterialIcon name='image' size={30} style={styles.navIcon}/><Text style={ this.state.current === 1 ? { ...styles.navItemText, ...styles.navItemText, fontWeight: 'bold' } : { ...styles.navItemText, ...styles.navItemText }}>Image</Text>
               </TouchableOpacity>
 
               <TouchableOpacity style={{...styles.subNavItem, ...uploadDropdownItemsStyle}} onPress={ this.clickUploadCamera }>
-                <MaterialIcon name='photo-camera' size={30} style={styles.navIcon}/><Text style={ this.state.current === 1 ? { fontWeight: 'bold' } : {} }>Camera</Text>
+                <MaterialIcon name='photo-camera' size={30} style={styles.navIcon}/><Text style={ this.state.current === 1 ? { ...styles.navItemText, fontWeight: 'bold' } : styles.navItemText }>Camera</Text>
               </TouchableOpacity>
             </View>
 
             <TouchableOpacity style={styles.navItem} onPress={ () => this.navigate('HistoryScreen', 3) }>
-              <MaterialIcon name='history' size={30} style={styles.navIcon}/><Text style={ this.state.current === 3 ? { fontWeight: 'bold' } : {} }>History</Text>
+              <MaterialIcon name='history' size={30} style={styles.navIcon}/><Text style={ this.state.current === 3 ? { ...styles.navItemText, fontWeight: 'bold' } : styles.navItemText }>History</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.navItem} onPress={ () => this.navigate('SettingsScreen', 4) }>
-              <MaterialIcon name='settings' size={30} style={styles.navIcon}/><Text style={ this.state.current === 4 ? { fontWeight: 'bold' } : {} }>Settings</Text>
+              <MaterialIcon name='settings' size={30} style={styles.navIcon}/><Text style={ this.state.current === 4 ? { ...styles.navItemText, fontWeight: 'bold' } : styles.navItemText }>Settings</Text>
             </TouchableOpacity>
 
             <View style={styles.border}></View>
             <TouchableOpacity style={ {...styles.navItem, marginBottom: 20} } onPress={ () => {} }>
-              <MaterialIcon name='feedback' size={30} style={styles.navIcon}/><Text>Send Feedback</Text>
+              <MaterialIcon name='feedback' size={30} style={styles.navIcon}/><Text style={styles.navItemText}>Send Feedback</Text>
             </TouchableOpacity>
         </ScrollView>
         <Spinner
@@ -347,7 +347,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         paddingVertical: 15,
-        backgroundColor: '#546E7A',
+        backgroundColor: colorConstants.headerBackgroundColorLight,
         marginBottom: 5,
         // transform: [
         //   {
@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
     },
     border: {
       borderBottomWidth: 1,
-      borderBottomColor: '#EEEEEE',
+      borderBottomColor: colorConstants.divider,
       marginVertical: 7
     },
     logoText: {
@@ -369,7 +369,7 @@ const styles = StyleSheet.create({
     },
     navIcon: {
         marginRight: 20,
-        color: '#546E7A'
+        color: 'white'
     },
     navItem: {
         flex: 1,
@@ -377,6 +377,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 15,
         paddingVertical: 10,
+    },
+    navItemText: {
+      color: 'white'
     },
     navItemDropdownView: {
       flex: 1,
@@ -387,6 +390,7 @@ const styles = StyleSheet.create({
       alignSelf: 'center'
     },
     navItemDropdownIcon: {
+      color: 'white',
       marginRight: 5
     },
     subNavItem: {

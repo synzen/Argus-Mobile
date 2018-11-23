@@ -1,5 +1,5 @@
 import { createStackNavigator, createDrawerNavigator } from 'react-navigation'
-import HomeScreen from './js/components/Home.js'
+import Dashboard from './js/components/Dashboard.js'
 import SideMenu from './js/components/SideMenu.js'
 import History from './js/components/History'
 import Settings from './js/components/Settings.js'
@@ -14,19 +14,22 @@ import { StyleSheet } from 'react-native'
 import React from 'react'
 import { fromLeft } from 'react-navigation-transitions'
 
-const homeNavigator = createStackNavigator({
-  HomeScreen: {
-    screen: HomeScreen,
+const dashboardNavigator = createStackNavigator({
+  DashboardScreen: {
+    screen: Dashboard,
     navigationOptions: ({ navigation }) => {
       return {
-        headerLeft: (<Icon name='ios-menu' size={30} onPress={() => navigation.toggleDrawer()} color={colorConstants.headerTextColor} style={styles.headerLeftButton} />),
+        headerLeft: (<Icon name='ios-menu' size={30} onPress={() => navigation.toggleDrawer()} color={colorConstants.headerTextColor} style={{ ...styles.headerLeftButton }} />),
         headerStyle: styles.headerStyle,
+        // headerTransparent: true,
+        // headerTintColor: 'black'
         headerTintColor: colorConstants.headerTextColor
+
       }
     }
   }
 }, {
-  cardStyle: { backgroundColor: colorConstants.headerBackgroundColorVeryLight }
+  cardStyle: { backgroundColor: colorConstants.headerBackgroundColor }
 })
 
 const historyNavigator = createStackNavigator({
@@ -35,7 +38,7 @@ const historyNavigator = createStackNavigator({
     navigationOptions: ({ navigation }) => {
       return {
         headerLeft: (<Icon name='ios-menu' size={30} onPress={() => navigation.toggleDrawer()} color={colorConstants.headerTextColor} style={styles.headerLeftButton} />),
-        headerRight: (<MaterialIcon name='delete' size={30} onPress={navigation.getParam('purge')} color={colorConstants.danger} style={styles.headerRightButton}/>),
+        headerRight: (<MaterialIcon name='delete' size={30} onPress={navigation.getParam('purge')} color={colorConstants.gray} style={styles.headerRightButton}/>),
         headerStyle: styles.headerStyle,
         headerTintColor: colorConstants.headerTextColor
       }
@@ -60,7 +63,7 @@ const historyNavigator = createStackNavigator({
     }
   }
 }, {
-  cardStyle: { backgroundColor: colorConstants.headerBackgroundColorVeryLight }
+  cardStyle: { backgroundColor: colorConstants.headerBackgroundColor }
 })
 
 const settingsNavigator = createStackNavigator({
@@ -74,15 +77,16 @@ const settingsNavigator = createStackNavigator({
       }
     }}
 }, {
-  cardStyle: { backgroundColor: colorConstants.headerBackgroundColorVeryLight }
+  cardStyle: { backgroundColor: colorConstants.headerBackgroundColor }
 })
 
 const drawerScreens = createDrawerNavigator({
-  Home: homeNavigator,
+  Home: dashboardNavigator,
   History: historyNavigator,
   Settings: settingsNavigator,
 }, {
   contentComponent: SideMenu,
+  drawerBackgroundColor: colorConstants.headerBackgroundColor,
   initialRouteName: 'Home'
 })
 
@@ -112,7 +116,7 @@ export default createStackNavigator({
     }
   }
 }, {
-  // cardStyle: { backgroundColor: colorConstants.headerBackgroundColorVeryLight },
+  cardStyle: { backgroundColor: colorConstants.headerBackgroundColor },
   transitionConfig: () => fromLeft(),
   initialRouteName: 'SideMenu'
 })
@@ -130,9 +134,9 @@ const styles = StyleSheet.create({
     paddingVertical: 12
   },
   headerStyle: {
-    backgroundColor: colorConstants.headerBackgroundColor
+    backgroundColor: colorConstants.headerBackgroundColorLight
   },
   cardStyle: {
-    backgroundColor: colorConstants.headerBackgroundColorVeryLight
+    backgroundColor: colorConstants.headerBackgroundColor
   }
 })

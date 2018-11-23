@@ -1,12 +1,20 @@
 export default {
-  headerBackgroundColor: '#607D8B',
-  headerBackgroundColorLight: '#90A4AE',
-  headerBackgroundColorVeryLight: '#CFD8DC',
-  headerBackgroundColorVeryVeryLight: '#ECEFF1',
+  // headerBackgroundColor: '#607D8B',
+  // headerBackgroundColorLight: '#90A4AE',
+  // headerBackgroundColorVeryLight: '#CFD8DC',
+  // headerBackgroundColorVeryVeryLight: '#ECEFF1',
+  headerBackgroundColor: '#212121',
+  headerBackgroundColorLight: '#303030',
+  headerBackgroundColorVeryLight: '#424242',
+  headerBackgroundColorVeryVeryLight: '#9E9E9E',
   headerTextColor: '#E0E0E0',
   danger: '#b00020',
   success: '#43A047',
+  warning: '#ff9800',
   blue: '#64B5F6',
   gray: '#9E9E9E',
-  divider: '#bdbdbd'
+  divider: '#757575',
+  textPrimary: '#FFFFFF',
+  textSecondary: 'rgba(255, 255, 255, 0.7)',
+  textDisabled: 'rgba(255, 255, 255, 0.5)'
 }
