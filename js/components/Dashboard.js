@@ -53,12 +53,19 @@ class ServerStatusCard extends Component {
             console.log(`ws://${host.replace('http://')}/ws`)
             newWs.onopen = () => {
                 console.log('websocket open')
-                if (!this.unmounted) this.setState({ serverStatus: 1 })
+                newWs.send('a message')
                 generalState.serverStatus = 1
                 generalState.setWebsocket(newWs)
+                if (!this.unmounted) {
+                    // const interval = setInterval(() => {
+                    //     newWs.send('ping')
+                    // })
+                    this.setState({ serverStatus: 1 })
+                }
             }
 
             newWs.onmessage = event => {
+                console.log(event.data)
                 Alert.alert('A message from your god', event.data)
             }
     

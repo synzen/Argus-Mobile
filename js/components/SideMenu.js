@@ -32,7 +32,12 @@ export default class SideMenu extends Component {
   static getDerivedStateFromProps(nextProps, state) {
     const params = nextProps.navigation.state.params
     if (!params || !params.email || !params.password) return null
-    if (state.email !== params.email || state.password !== params.password) return { email: params.email, password: params.password }
+    if (state.email !== params.email || state.password !== params.password) {
+      return {
+        email: params.email,
+        password: params.password
+      }
+    }
     else return null
   }
 
@@ -162,6 +167,8 @@ export default class SideMenu extends Component {
 
       // Send the request
       const formData = new FormData();
+      console.log(this.state.email)
+      console.log(this.state.password)
       formData.append('username', this.state.email) // you can append anyone.
       formData.append('password', this.state.password)
       formData.append('photo', {
@@ -180,8 +187,10 @@ export default class SideMenu extends Component {
 
       // Status code must be 200. res.ok is a boolean which checks this
       if (!response.ok) throw new Error(`Non-200 status code (${response.status})`)
-      
+      console.log(response.status)
       const classifications = await response.json() // jsonBody should be an array of objects with the keys specified in js/constants/schemas.ClassificationSchema.properties
+      console.log(classifications)
+      
       if (Object.keys(classifications).length === 0) Alert.alert('Aw man!', 'No matches found!')
       else {
         const formatted = {
