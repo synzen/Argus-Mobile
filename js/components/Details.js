@@ -7,6 +7,7 @@ import {
     Dimensions,
     Linking,
     TouchableOpacity,
+    TouchableHighlight,
     Alert,
     Button,
     Animated
@@ -14,24 +15,23 @@ import {
 import FastImage from 'react-native-fast-image'
 import { material, systemWeights } from 'react-native-typography'
 import colorConstants from '../constants/colors.js'
+import LinearGradient from 'react-native-linear-gradient'
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 const win = Dimensions.get('window')
 
 class Badge extends Component {
     render () {
         return (
             <TouchableOpacity 
-            style={ this.props.selected ? { ...styles.badge, 'backgroundColor': colorConstants.headerBackgroundColorLight } : styles.badge } 
+            style={ this.props.selected ? { ...styles.badge, 'backgroundColor': colorConstants.headerBackgroundColorVeryLight } : styles.badge } 
             onPress={this.props.onPress}>
-                <Text style={styles.badgeText}>{ this.props.text }</Text>
+                <Text style={ this.props.selected ? styles.badgeTextSelected : styles.badgeText }>{ this.props.text }</Text>
             </TouchableOpacity>
         )
     }
 }
 
 export default class Details extends Component {
-    static navigationOptions = {
-        title: 'Details'
-    }
 
     constructor(props) {
         super(props)
@@ -86,17 +86,22 @@ export default class Details extends Component {
 
         return (
             <ScrollView>
+                <TouchableHighlight onPress={() => this.props.navigation.navigate('ViewImageScreen', { base64: navParams.image.base64, width: navParams.image.width, height: navParams.image.height })}><FastImage source={{uri: `data:image/jpg;base64,${navParams.image.base64}`}} style={{ ...styles.image, height: 275, width: win.width }}/></TouchableHighlight>
+                <LinearGradient colors={['rgba(0,0,0,0)', 'rgba(0,0,0,.7)']} style={styles.gradientContainer}>
+                    <View style={{ ...styles.gradientTextContainer, height: 90, width: win.width }}>
+                        <View style={{flex: 1, paddingRight: 5}}>
+                            <Animated.Text numberOfLines={1} style={{ ...styles.superHeading, opacity: this.state.fadeAnim }}>{this.state.selectedMatchName}</Animated.Text>
+                            <Animated.Text style={{ ...styles.subheading, marginVertical: 5, opacity: this.state.fadeAnim }}>{ this.state.selectedMatchPercent ?  `${(this.state.selectedMatchPercent * 100).toFixed(2)}% Score` : ''}</Animated.Text>
+                        </View>
+                        <TouchableOpacity style={{padding: 10}}>
+                            <Icon name='arrow-expand' size={30} color={colorConstants.textPrimary} onPress={() => this.props.navigation.navigate('ViewImageScreen', { base64: navParams.image.base64, width: navParams.image.width, height: navParams.image.height })}/>
+                        </TouchableOpacity>
+                    </View>
+                </LinearGradient>
                 <View style={styles.container}>
-                    <TouchableOpacity  onPress={() => this.props.navigation.navigate('ViewImageScreen', { base64: navParams.image.base64, width: navParams.image.width, height: navParams.image.height })}>
-                        <FastImage source={{uri: `data:image/jpg;base64,${navParams.image.base64}`}} style={ { ...styles.image, height: this.state.imageHeight, width: this.state.imageWidth } } resizeMode={FastImage.resizeMode.stretch}/>
-                    </TouchableOpacity>
-                    {/* <Image resizeMode='contain' source={{uri: navParams.uri}} style={styles.image}/> */}
                     { !navParams.error ? 
                         (<View>
-                            <Animated.Text style={ { ...styles.superHeading, opacity: this.state.fadeAnim } }>{this.state.selectedMatchName}</Animated.Text>
-                            <Animated.Text style={{ ...styles.subheading, marginVertical: 5, opacity: this.state.fadeAnim }}>{(this.state.selectedMatchPercent * 100).toFixed(2)}% Score</Animated.Text>
-                            <View style={styles.border}></View>
-                            <Text style={styles.heading}>Matches</Text>
+                            <Text style={styles.heading}>Other Matches</Text>
                             <View style={styles.badgeContainer}>
                                 { //[{ description: 'dog', score: 12 }, { description: 'doge', score: 50 }, { description: 'dogggo', score: 70 }, { description: 'doggo', score: 98 }, { description: 'duck', score: 35 }, { description: 'dogjesus', score: 85 }, { description: 'dogod', score: 75 }, { description: 'dug', score: 54 }, { description: 'donkey', score: 12 },]
                                     navParams.classifications.map(item => {
@@ -106,14 +111,14 @@ export default class Details extends Component {
                             <View style={styles.border}></View>
 
                             <Text style={styles.heading}>Summary</Text>
-                            <Animated.Text style={{opacity: this.state.fadeAnim}}>{this.state.selectedSummary}</Animated.Text>
-                            <View style={styles.wikipediaButton} ><Button onPress={() => this.openLink(this.state.selectedWikipedia)} title='Wikipedia' color={colorConstants.headerBackgroundColor}></Button></View>
+                            <Animated.Text style={{ ...styles.bodyText, opacity: this.state.fadeAnim }}>{this.state.selectedSummary}</Animated.Text>
+                            <View style={styles.wikipediaButton} ><Button onPress={() => this.openLink(this.state.selectedWikipedia)} title='Wikipedia' color={colorConstants.headerBackgroundColorLight}></Button></View>
                             <View style={styles.border}></View>
                             <Text style={styles.heading}>Response</Text>
                             {  this.state.showResponse ?
-                                <Text>{JSON.stringify(navParams.response, null, 2)}</Text>
+                                <Text style={styles.bodyText}>{JSON.stringify(navParams.response, null, 2)}</Text>
                                 :
-                                <View style={styles.wikipediaButton} ><Button onPress={() => this.setState({ showResponse: true })} title='Show' color={colorConstants.headerBackgroundColor}></Button></View>
+                                <View style={styles.wikipediaButton} ><Button onPress={() => this.setState({ showResponse: true })} title='Show' color={colorConstants.headerBackgroundColorLight}></Button></View>
                             }
                             <View style={styles.border}></View>
                         </View>)
@@ -130,17 +135,17 @@ export default class Details extends Component {
                         <View style={styles.miscInfoRow}>
                             <View style={styles.miscInfoItem}>
                                 <Text style={styles.subheading}>File Name</Text>
-                                <Text>{navParams.id}</Text>
+                                <Text style={styles.bodyText}>{navParams.id}</Text>
                             </View>
                             <View style={styles.miscInfoItem}>
                                 <Text style={styles.subheading}>Dimensions</Text>
-                                <Text>{navParams.image.width}x{navParams.image.height}</Text>
+                                <Text style={styles.bodyText}>{navParams.image.width}x{navParams.image.height}</Text>
                             </View>
                         </View>
                         <View style={styles.miscInfoRow}>
                             <View style={styles.miscInfoItem}>
                                 <Text style={styles.subheading}>Date Modified</Text>
-                                <Text>{navParams.date.toString()}</Text>
+                                <Text style={styles.bodyText}>{navParams.date.toString()}</Text>
                             </View>
                             <View style={styles.miscInfoItem}>
                                 {/* <Text style={styles.subheading}>File Size</Text>
@@ -167,17 +172,26 @@ const styles = StyleSheet.create({
     },
     border: {
         borderBottomWidth: 1,
-        borderBottomColor: '#bdbdbd',
+        borderBottomColor: colorConstants.divider,
         marginVertical: 15
     },
     image: {
         flex: 1,
-        // marginBottom: 20,
-        // width: 300,
-        width: win.width * .8,
-        height: 225,
         alignSelf: 'center',
         marginBottom: 20
+    },
+    gradientContainer: {
+        flex: 1,
+        position: 'absolute',
+        top: 185,
+        left: 0
+    },
+    gradientTextContainer: {
+        color: colorConstants.textPrimary,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 15
     },
     miscInfoContainer: {
         flex: 1,
@@ -197,8 +211,9 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         // margin: 30,
-        marginVertical: 20,
-        marginHorizontal: 25
+        marginBottom: 20,
+        marginTop: 10,
+        marginHorizontal: 10
         // backgroundColor: 'gray'
         // padding: 100
         // height: 500
@@ -209,22 +224,27 @@ const styles = StyleSheet.create({
     }, 
     superHeading: {
         ...material.display1,
-        ...systemWeights.bold,
-        color: 'black'
+        color: colorConstants.textPrimary
     },
     heading: {
         ...material.title,
-        ...systemWeights.semibold,
+        // ...systemWeights.semibold,
+        color: colorConstants.textPrimary,
         marginBottom: 15
     },
     subheading: {
+        ...material.body1,
         marginVertical: 15,
-        ...material.body1
+        color: colorConstants.textSecondary,
+        
+    },
+    bodyText: {
+        color: colorConstants.textSecondary
     },
     badge: {
-        borderRadius: 50,
-        backgroundColor: '#ecf0f1',
-        margin: 5,
+        // borderRadius: 50,
+        backgroundColor: colorConstants.headerBackgroundColorVeryVeryLight,
+        margin: 2,
         borderColor: colorConstants.headerBackgroundColor,
         borderWidth: 1
     },
@@ -232,10 +252,14 @@ const styles = StyleSheet.create({
         paddingVertical: 3,
         paddingHorizontal: 6
     },
+    badgeTextSelected: {
+        paddingVertical: 3,
+        paddingHorizontal: 6,
+        color: colorConstants.textPrimary
+    },
     badgeContainer: {
         flex: 1,
         flexDirection: 'row',
         flexWrap: 'wrap'
-
     }
 })

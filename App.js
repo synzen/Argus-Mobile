@@ -48,7 +48,8 @@ const historyNavigator = createStackNavigator({
     screen: Details,
     navigationOptions: ({ navigation }) => {
       return {
-        headerStyle: styles.headerStyle,
+        // headerStyle: styles.headerStyle,
+        headerTransparent: true,
         headerTintColor: colorConstants.headerTextColor
       }
     }

@@ -21,6 +21,7 @@
     "react-native-fs": "^2.12.0",
     "react-native-image-pan-zoom": "^2.1.11",
     "react-native-image-picker": "^0.27.1",
+    "react-native-linear-gradient": "^2.4.4",
     "react-native-loading-spinner-overlay": "^1.0.1",
     "react-native-navigation": "^2.0.2625",
     "react-native-svg": "^8.0.8",

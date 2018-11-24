@@ -168,7 +168,7 @@ export default class History extends Component {
 
 
       return this.state.loading ?
-        <View style={styles.loadingView}><ActivityIndicator size='large'/></View>
+        <View style={styles.loadingView}><ActivityIndicator size='large' color={colorConstants.blue}/></View>
         :
         this.state.items.length > 0 ? 
             // <FlatList

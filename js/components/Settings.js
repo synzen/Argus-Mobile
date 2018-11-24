@@ -1,10 +1,9 @@
 import React, { Component } from 'react'
 import CameraDefaults from '../constants/camera.js'
-// import Dialog from "react-native-dialog";
 import { material } from 'react-native-typography'
 import colorConstants from '../constants/colors'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import Dialog from "react-native-dialog";
+import Dialog from "react-native-dialog"
 import {
   Alert,
   AsyncStorage,
@@ -13,7 +12,7 @@ import {
   View,
   ScrollView,
   StyleSheet,
-} from 'react-native';
+} from 'react-native'
 
 class SettingsItem extends Component {
   constructor(props) {

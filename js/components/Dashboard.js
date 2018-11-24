@@ -1,5 +1,4 @@
 import React, { Component, useState, useEffect } from 'react'
-import Dialog from "react-native-dialog";
 import keyHolder from '../constants/keys.js'
 import {
     Text,
