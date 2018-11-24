@@ -71,8 +71,8 @@ class ServerStatusCard extends Component {
         })
         .catch(err => {
             console.log(err)
+            Alert.alert('Error', err.message)
             if (!this.unmounted) {
-                Alert.alert('Error', err.message)
                 this.setState({ serverStatus: 2})
                 generalState.serverStatus = 2
             }
@@ -81,8 +81,8 @@ class ServerStatusCard extends Component {
 
     render () {
         const serverStatusIcon = this.state.serverStatus === 0 ? <AntIcon name='ellipsis1' size={70} color='white'/> : this.state.serverStatus === 1 ? <MaterialIcon name='check-circle' size={70} color={colorConstants.success}/> : this.state.serverStatus === 2 ? <MaterialIcon name='warning' size={70} color={colorConstants.warning}/> : <MaterialIcon name='error' size={70} color={colorConstants.danger}/>
-        const serverStatusHeaderText = this.state.serverStatus === 0 ? 'Testing connection...' : this.state.serverStatus === 1 ? 'Online' : this.state.serverStatus === 2 ? 'Unexpected Response' : 'Offline'
-        const serverStatusDescriptionText = this.state.serverStatus === 0 ? 'Please wait for connection results.' : this.state.serverStatus === 1 ? 'All functions fully operational.' : this.state.serverStatus === 2 ? 'Some functions may have unexpected results.' : 'Our monkeys have been dispatched fix this ASAP!'
+        const serverStatusHeaderText = this.state.serverStatus === 0 ? 'Testing connection...' : this.state.serverStatus === 1 ? 'Online' : this.state.serverStatus === 2 ? 'No Host' : 'Offline'
+        const serverStatusDescriptionText = this.state.serverStatus === 0 ? 'Please wait for connection results.' : this.state.serverStatus === 1 ? 'All functions fully operational.' : this.state.serverStatus === 2 ? 'No host has been specified.' : 'Our monkeys have been dispatched fix this ASAP!'
 
         return (
             <Card title='Server Status' containerStyle={styles.cardContainer} titleStyle={{color:'white'}}>
