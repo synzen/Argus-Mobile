@@ -116,7 +116,7 @@ export default class Login extends Component {
             globalState.email = this.state.email
             globalState.password = this.state.password
             const setParamsAction = NavigationActions.setParams({
-                params: { email: this.state.email },
+                params: { email: this.state.email, password: this.state.password },
                 key: keyHolder.get('SideMenu'),
             })
             console.log(keyHolder.get('SideMenu'))
