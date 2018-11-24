@@ -31,8 +31,6 @@ UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationE
 export default class SideMenu extends Component {
   static getDerivedStateFromProps(nextProps, state) {
     const params = nextProps.navigation.state.params
-    console.log('params', params)
-    console.log('state email', state.email)
     if (!params || !params.email || !params.password) return null
     if (state.email !== params.email || state.password !== params.password) return { email: params.email, password: params.password }
     else return null

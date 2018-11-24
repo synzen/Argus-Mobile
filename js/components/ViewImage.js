@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import ImageZoom from 'react-native-image-pan-zoom';
 import FastImage from 'react-native-fast-image'
-const windowDimensions = Dimensions.get('window')
+import Orientation from 'react-native-orientation'
 
 export default class ViewImage extends Component {
     static navigationOptions = {
@@ -21,6 +21,33 @@ export default class ViewImage extends Component {
 
     constructor(props) {
         super(props)
+        this.state = {
+            width: 0,
+            height: 0,
+            cropWidth: 0,
+            cropHeight: 0
+        }
+
+        this.state = this.calcDimensions()
+
+
+    }
+
+    componentDidMount = function () {
+        Orientation.addOrientationListener(this._orientationChanged)
+    }
+
+    componentWillUnmount = function () {
+        Orientation.removeOrientationListener(this._orientationChanged)
+    }
+
+    _orientationChanged = orientation => {
+        setTimeout(() => this.setState(this.calcDimensions()), 0)
+    }
+
+    calcDimensions = () => {
+        const windowDimensions = Dimensions.get('window')
+
         const windowWidth = windowDimensions.width
         const windowHeight = windowDimensions.height - 100
         const imageWidth = this.props.navigation.state.params.width
@@ -34,16 +61,7 @@ export default class ViewImage extends Component {
             useWidth = useHeight * imageWidth / imageHeight
         }
 
-        this.state = {
-            width: useWidth,
-            height: useHeight,
-            cropWidth: windowDimensions.width,
-            cropHeight: windowDimensions.height
-        }
-    }
-
-    calcDimensions = () => {
-
+        return { width: useWidth, height: useHeight, cropWidth: windowDimensions.width, cropHeight: windowDimensions.height }
     }
 
     render () {

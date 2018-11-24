@@ -17,6 +17,7 @@ import { material, systemWeights } from 'react-native-typography'
 import colorConstants from '../constants/colors.js'
 import LinearGradient from 'react-native-linear-gradient'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+import Orientation from 'react-native-orientation'
 const win = Dimensions.get('window')
 
 class Badge extends Component {
@@ -61,10 +62,23 @@ export default class Details extends Component {
             selectedWikipedia: max.wikipediaUrl || 'https://www.google.com',
             selectedSummary: max.summary || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum',
             fadeAnim: new Animated.Value(1),
-            imageWidth: win.width * .9,
-            imageHeight: params.image.height * win.width * .9 / params.image.width
+            imageWidth: win.width
         }
     }
+
+    componentDidMount = function () {
+        Orientation.addOrientationListener(this._orientationChanged)
+    }
+
+    componentWillUnmount = function () {
+        Orientation.removeOrientationListener(this._orientationChanged)
+    }
+
+    _orientationChanged = orientation => {
+        setTimeout(() => this.setState({ imageWidth: Dimensions.get('window').height }), 0)
+    }
+
+    
 
     openLink = link => Linking.canOpenURL(link).then(able => able ? Linking.openURL(link) : Alert.alert('Error', 'No applications available to open URI')).catch(console.log)
 
@@ -86,9 +100,9 @@ export default class Details extends Component {
 
         return (
             <ScrollView>
-                <TouchableHighlight onPress={() => this.props.navigation.navigate('ViewImageScreen', { base64: navParams.image.base64, width: navParams.image.width, height: navParams.image.height })}><FastImage source={{uri: `data:image/jpg;base64,${navParams.image.base64}`}} style={{ ...styles.image, height: 275, width: win.width }}/></TouchableHighlight>
+                <TouchableHighlight onPress={() => this.props.navigation.navigate('ViewImageScreen', { base64: navParams.image.base64, width: navParams.image.width, height: navParams.image.height })}><FastImage source={{uri: `data:image/jpg;base64,${navParams.image.base64}`}} style={{ ...styles.image, height: 275, width: this.state.imageWidth }}/></TouchableHighlight>
                 <LinearGradient colors={['rgba(0,0,0,0)', 'rgba(0,0,0,.7)']} style={styles.gradientContainer}>
-                    <View style={{ ...styles.gradientTextContainer, height: 90, width: win.width }}>
+                    <View style={{ ...styles.gradientTextContainer, height: 90, width: this.state.imageWidth }}>
                         <View style={{flex: 1, paddingRight: 5}}>
                             <Animated.Text numberOfLines={1} style={{ ...styles.superHeading, opacity: this.state.fadeAnim }}>{this.state.selectedMatchName}</Animated.Text>
                             <Animated.Text style={{ ...styles.subheading, marginVertical: 5, opacity: this.state.fadeAnim }}>{ this.state.selectedMatchPercent ?  `${(this.state.selectedMatchPercent * 100).toFixed(2)}% Score` : ''}</Animated.Text>
