@@ -6,6 +6,7 @@ import { material } from 'react-native-typography'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import Dialog, { ScaleAnimation } from 'react-native-popup-dialog';
 import { NavigationActions, StackActions } from 'react-navigation'
+import generalState from '../constants/state.js'
 import {
     Text,
     TouchableHighlight,
@@ -79,14 +80,43 @@ export default class Settings extends Component {
         //     this.props.navigation.dispatch(setParamsAction)
         // }).catch(console.log)
 
-        setTimeout(() => {
-            const actionToDispatch = StackActions.reset({
-                index: 0,
-                actions: [NavigationActions.navigate({ routeName: 'SideMenu' })]
-              })
-            this.props.navigation.dispatch(actionToDispatch)
-        }, 4000)
+        // AsyncStorage.getItem('host').then(host => {
+        //   if (!host) return
+          
+        //   const ws = new WebSocket('ws://192.168.1.14:3002/')
+        //   let opened = false
+        //   generalState.setWebsocket(ws)
+        //   ws.onopen = () => {
+        //     generalState.setWebsocket(ws)
+        //     cachedWs.onopen = undefined
+        //     this._resetRoute()
+        //   }
 
+        //   ws.onerror = () => {
+        //     generalState.setWebsocket(ws)
+        //     cachedWs.onerror = undefined
+        //     this._resetRoute()
+        //   }
+
+        // }).catch(console.log)
+
+        // setTimeout(() => {
+            // const actionToDispatch = StackActions.reset({
+            //     index: 0,
+            //     actions: [NavigationActions.navigate({ routeName: 'SideMenu' })]
+            //   })
+            // this.props.navigation.dispatch(actionToDispatch)
+        // }, 4000)
+        this._resetRoute()
+
+    }
+
+    _resetRoute = () => {
+      const actionToDispatch = StackActions.reset({
+        index: 0,
+        actions: [NavigationActions.navigate({ routeName: 'SideMenu' })]
+      })
+      this.props.navigation.dispatch(actionToDispatch)
     }
 
     render() {

@@ -3,7 +3,8 @@ const ImageSchema = {
   properties: {
     path: 'string',
     width: 'int',
-    height: 'int'
+    height: 'int',
+    sizeMB: 'string'
   }
 }
 

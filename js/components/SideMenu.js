@@ -191,6 +191,7 @@ export default class SideMenu extends Component {
             path: imageResponse.uri,
             width: imageResponse.width,
             height: imageResponse.height,
+            sizeMB: (imageResponse.fileSize / 1000000).toFixed(2)
           },
           date: imageResponse.timestamp,
           classifications
@@ -223,7 +224,8 @@ export default class SideMenu extends Component {
                 image: {
                     path: imageResponse.uri,
                     width: imageResponse.width,
-                    height: imageResponse.height
+                    height: imageResponse.height,
+                    sizeMB: (imageResponse.fileSize / 1000000).toFixed(2)
                 },
                 date: imageResponse.timestamp
             }, true)
@@ -281,19 +283,19 @@ export default class SideMenu extends Component {
                     ]}} name="eye" size={140} color='white'/>
             </View>
             <TouchableOpacity style={styles.navItem} onPress={this.accountAction}>
-              <MaterialCommunityIcon name={this.state.email ? 'logout' : 'login'} size={30} style={styles.navIcon}/><Text style={styles.navItemText}>{ this.state.email ? this.state.email : 'Login' }</Text>
+              <MaterialCommunityIcon name={this.state.email ? 'logout' : 'login'} size={26} style={styles.navIcon}/><Text style={styles.navItemText}>{ this.state.email ? this.state.email : 'Login' }</Text>
             </TouchableOpacity>
             <View style={styles.border}></View>
 
             <TouchableOpacity style={styles.navItem} onPress={ () => this.navigate('DashboardScreen', 0) }>
-              <MaterialIcon name='dashboard' size={30} style={styles.navIcon}/><Text style={ this.state.current === 0 ? { ...styles.navItemText, fontWeight: 'bold' } : styles.navItemText }>Dashboard</Text>
+              <MaterialIcon name='dashboard' size={26} style={styles.navIcon}/><Text style={ this.state.current === 0 ? { ...styles.navItemText, fontWeight: 'bold' } : styles.navItemText }>Dashboard</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.navItem} onPress={ () => /*this.navigate('CameraScreen', 1)*/ this.toggleUploadDropdown() }>
-              <MaterialIcon name='cloud-upload' size={30} style={styles.navIcon}/>
+              <MaterialIcon name='cloud-upload' size={26} style={styles.navIcon}/>
               <View style={styles.navItemDropdownView}>
                 <Text style={this.state.current === 1 ? { ...styles.navItemText, ...styles.navItemDropdownText, fontWeight: 'bold', alignSelf: 'center' } : { ...styles.navItemText, ...styles.navItemDropdownText, alignSelf: 'center' } }>Upload</Text>
-                <MaterialIcon name={this.state.expandUpload ? 'arrow-drop-up' : 'arrow-drop-down'} size={30} style={styles.navItemDropdownIcon}/>
+                <MaterialIcon name={this.state.expandUpload ? 'arrow-drop-up' : 'arrow-drop-down'} size={26} style={styles.navItemDropdownIcon}/>
               </View>
 
             </TouchableOpacity>
@@ -301,25 +303,25 @@ export default class SideMenu extends Component {
 
             <View style={uploadDropdownViewStyle}>
               <TouchableOpacity style={{...styles.subNavItem, ...uploadDropdownItemsStyle}} onPress={ this.clickUploadImage }>
-                <MaterialIcon name='image' size={30} style={styles.navIcon}/><Text style={ this.state.current === 1 ? { ...styles.navItemText, ...styles.navItemText, fontWeight: 'bold' } : { ...styles.navItemText, ...styles.navItemText }}>Image</Text>
+                <MaterialIcon name='image' size={26} style={styles.navIcon}/><Text style={ this.state.current === 1 ? { ...styles.navItemText, ...styles.navItemText, fontWeight: 'bold' } : { ...styles.navItemText, ...styles.navItemText }}>Image</Text>
               </TouchableOpacity>
 
               <TouchableOpacity style={{...styles.subNavItem, ...uploadDropdownItemsStyle}} onPress={ this.clickUploadCamera }>
-                <MaterialIcon name='photo-camera' size={30} style={styles.navIcon}/><Text style={ this.state.current === 1 ? { ...styles.navItemText, fontWeight: 'bold' } : styles.navItemText }>Camera</Text>
+                <MaterialIcon name='photo-camera' size={26} style={styles.navIcon}/><Text style={ this.state.current === 1 ? { ...styles.navItemText, fontWeight: 'bold' } : styles.navItemText }>Camera</Text>
               </TouchableOpacity>
             </View>
 
             <TouchableOpacity style={styles.navItem} onPress={ () => this.navigate('HistoryScreen', 3) }>
-              <MaterialIcon name='history' size={30} style={styles.navIcon}/><Text style={ this.state.current === 3 ? { ...styles.navItemText, fontWeight: 'bold' } : styles.navItemText }>History</Text>
+              <MaterialIcon name='history' size={26} style={styles.navIcon}/><Text style={ this.state.current === 3 ? { ...styles.navItemText, fontWeight: 'bold' } : styles.navItemText }>History</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.navItem} onPress={ () => this.navigate('SettingsScreen', 4) }>
-              <MaterialIcon name='settings' size={30} style={styles.navIcon}/><Text style={ this.state.current === 4 ? { ...styles.navItemText, fontWeight: 'bold' } : styles.navItemText }>Settings</Text>
+              <MaterialIcon name='settings' size={26} style={styles.navIcon}/><Text style={ this.state.current === 4 ? { ...styles.navItemText, fontWeight: 'bold' } : styles.navItemText }>Settings</Text>
             </TouchableOpacity>
 
             <View style={styles.border}></View>
             <TouchableOpacity style={ {...styles.navItem, marginBottom: 20} } onPress={ () => {} }>
-              <MaterialIcon name='feedback' size={30} style={styles.navIcon}/><Text style={styles.navItemText}>Send Feedback</Text>
+              <MaterialIcon name='feedback' size={26} style={styles.navIcon}/><Text style={styles.navItemText}>Send Feedback</Text>
             </TouchableOpacity>
         </ScrollView>
         <Spinner

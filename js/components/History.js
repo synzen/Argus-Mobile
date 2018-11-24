@@ -95,6 +95,7 @@ export default class History extends Component {
         // Add a 0 timeout to make this asynchronous for faster page load
         setTimeout(() => {
           LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+          // Realm.deleteFile({ schema: schemas.all })
           Realm.open({ schema: schemas.all })
           .then(realm => {
             const aggregated = []
@@ -106,6 +107,7 @@ export default class History extends Component {
             const stateItems = []
             const failedStateItems = []
             let c = 0
+            if (aggregated.length === 0) return this.setState({ loading: false })
             for (item of aggregated) {
               const localItem = item // Specifically define it here so when the item is referred to in the process, the localItem is referred to rather than the changing item in the for loop (closures)
               RNFS.readFile(item.image.path, 'base64')
@@ -268,6 +270,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     alignSelf: 'center',
+    color: colorConstants.textPrimary,
     margin: 30
   },
   heading: {

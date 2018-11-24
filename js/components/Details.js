@@ -97,7 +97,6 @@ export default class Details extends Component {
 
     render () {
         const navParams = this.props.navigation.state.params
-
         return (
             <ScrollView>
                 <TouchableHighlight onPress={() => this.props.navigation.navigate('ViewImageScreen', { base64: navParams.image.base64, width: navParams.image.width, height: navParams.image.height })}><FastImage source={{uri: `data:image/jpg;base64,${navParams.image.base64}`}} style={{ ...styles.image, height: 275, width: this.state.imageWidth }}/></TouchableHighlight>
@@ -162,8 +161,8 @@ export default class Details extends Component {
                                 <Text style={styles.bodyText}>{navParams.date.toString()}</Text>
                             </View>
                             <View style={styles.miscInfoItem}>
-                                {/* <Text style={styles.subheading}>File Size</Text>
-                                <Text>{navParams.size}</Text> */}
+                                <Text style={styles.subheading}>File Size</Text>
+                                <Text style={styles.bodyText}>{navParams.image.sizeMB} MB</Text>
                             </View>
 
                         </View>
@@ -209,7 +208,8 @@ const styles = StyleSheet.create({
     },
     miscInfoContainer: {
         flex: 1,
-        flexDirection: 'column'
+        flexDirection: 'column',
+        justifyContent: 'space-between'
         
     },
     miscInfoRow: {
