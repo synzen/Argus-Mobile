@@ -138,6 +138,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-image-resizer')
     compile project(':react-native-orientation')
 	compile project(':react-native-linear-gradient')
     compile project(':react-native-svg')

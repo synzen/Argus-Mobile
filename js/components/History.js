@@ -20,16 +20,26 @@ import {
 } from 'react-native';
 import schemas from '../constants/schemas.js'
 import colorConstants from '../constants/colors.js'
-import { Button, Card } from 'react-native-elements'
+import { Button, Card, Icon } from 'react-native-elements'
 import { material } from 'react-native-typography'
 import Realm from 'realm'
 import colors from '../constants/colors.js';
 UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
 const windowDimensions = Dimensions.get('window')
+const NUMBER_OF_TILES_PER_ROW = 3
+
 
 function HistoryTile (props) {
   return (
-    <TouchableOpacity onPress={ () => props.navigate('DetailsScreen', props.data) }><FastImage source={{ uri: `data:image/jpg;base64,${props.data.image.base64}` }} style={{ ...styles.historyTile, height: props.length, width: props.length, margin: props.margin / 2 }}/></TouchableOpacity>
+    <TouchableOpacity onPress={ () => props.navigate('DetailsScreen', props.data) } style={styles.historyTile}>
+      { props.data.success ? 
+        undefined :
+        <View style={styles.historyTileOverlay}>
+          <Icon name='error' color={colorConstants.danger} style={styles.historyTileIcon}/>
+        </View> 
+      }
+      <FastImage source={{ uri: `data:image/jpg;base64,${props.data.image.base64}` }} style={{ ...styles.historyTile, height: props.length, width: props.length, margin: props.margin / 2 }}/>
+    </TouchableOpacity>
   )
 }
 
@@ -98,6 +108,7 @@ export default class History extends Component {
           // Realm.deleteFile({ schema: schemas.all })
           Realm.open({ schema: schemas.all })
           .then(realm => {
+            this.setState({ realm })
             const aggregated = []
             const succeeded = realm.objects(schemas.IdentifiedItemSchema.name).sorted('date', true).values()
             const failed = realm.objects(schemas.FailedIdentifiedItemSchema.name).sorted('date', true).values()
@@ -115,10 +126,12 @@ export default class History extends Component {
                 const stateItem = { ...localItem }
                 stateItem.image.base64 = data
                 stateItems.push(stateItem)
+                // this.setState({ items: [ ...this.state.items, stateItem ], loading: false })
                 if (++c === aggregated.length) this.setState({ items: stateItems, realm, loading: false })
               })
               .catch(err => {
-                console.log(err)                
+                console.log(err)
+                // if (this.state.loading) this.setState({ loading: false })
                 if (++c === aggregated.length) this.setState({ items: stateItems, realm, loading: false })
               })
             }
@@ -135,39 +148,39 @@ export default class History extends Component {
 
     deleteItems = () => {
       Realm.deleteFile({ schema: schemas.all })
+      this.state.realm.close()
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
       this.setState({ items: [] })
+      
     }
 
     render() {
       const succeeded = []
       let tempSuccess = []
 
-      const failed = []
-      let tempFailed = []
-
+      // const failed = []
+      // let tempFailed = []
       for (item of this.state.items) {
-        if (item.success) {
-          if (tempSuccess.length < 4) {
+        // if (item.success) {
+          if (tempSuccess.length < NUMBER_OF_TILES_PER_ROW) {
             tempSuccess.push(item)
           } else {
             succeeded.push(tempSuccess)
             tempSuccess = []
             tempSuccess.push(item)
           }
-        } else {
-          if (tempFailed.length < 4) {
-            tempFailed.push(item)
-          } else {
-            failed.push(tempFailed)
-            tempFailed = []
-            tempFailed.push(item)
-          }
-        }
+        // } else {
+        //   if (tempFailed.length < 4) {
+        //     tempFailed.push(item)
+        //   } else {
+        //     failed.push(tempFailed)
+        //     tempFailed = []
+        //     tempFailed.push(item)
+        //   }
+        // }
       }
       if (tempSuccess.length > 0) succeeded.push(tempSuccess)
-      if (tempFailed.length > 0) failed.push(tempFailed)
-
+      // if (tempFailed.length > 0) failed.push(tempFailed)
 
       return this.state.loading ?
         <View style={styles.loadingView}><ActivityIndicator size='large' color={colorConstants.blue}/></View>
@@ -200,11 +213,11 @@ export default class History extends Component {
 
             // </ScrollView>
             <SectionList
-              renderItem={ ({ item }) =>  <HistoryTileRow items={item} tileCount={3} navigate={this.props.navigation.navigate}></HistoryTileRow>}
-              renderSectionHeader={ ({ section }) => <Text style={ { ...material.subheading, ...styles.heading } }>{ section.key }</Text> }
+              renderItem={ ({ item }) =>  <HistoryTileRow items={item} tileCount={NUMBER_OF_TILES_PER_ROW} navigate={this.props.navigation.navigate}></HistoryTileRow>}
+              // renderSectionHeader={ ({ section }) => <Text style={ { ...material.subheading, ...styles.heading } }>{ section.key }</Text> }
               sections={[
                 { data: succeeded, key: 'Identified' },
-                { data: failed, key: 'Failed' }
+                // { data: failed, key: 'Failed' }
               ]}
               keyExtractor={ (item, index) => item[0].id + 'row'}
             />
@@ -245,7 +258,16 @@ const styles = StyleSheet.create({
     margin: 15,
   },
   historyTile: {
-    
+    position: 'relative'
+  },
+  historyTileOverlay: {
+    position: 'absolute',
+    bottom: 10,
+    right: 10,
+    zIndex: 100
+  },
+  historyTileIcon: {
+    padding: 20
   },
   historyTileRow: {
     flex: 1,

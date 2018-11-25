@@ -24,7 +24,8 @@ class ServerStatusCard extends Component {
 
         this.state = {
             serverStatus: 0, // 0 = pending, 1 = success, 2 = warning, 3 = failed
-            serverStatusMessage: ''
+            serverStatusMessage: '',
+            host: ''
         }
     }
 
@@ -38,17 +39,20 @@ class ServerStatusCard extends Component {
 
     tryConnection = () => {
         this.setState({ serverStatus: 0 })
-        const origWs = generalState.getWebsocket()
-        if (origWs) {
-            if (origWs.readyState === 1) {
-                return this.setState({ serverStatus: 1 })
-            } else {
-                origWs.close()
-            }
-        }
+
         AsyncStorage.getItem('host')
         .then(host => {
-            if (!host) return Alert.alert('Error', 'No host has been set.')
+            if (!host) {
+                if (!this.unmounted) {
+                    this.setState({ serverStatus: 2})
+                    generalState.serverStatus = 2
+                }
+            }
+            if (host === this.state.host) {
+                const origWs = generalState.getWebsocket()
+                if (origWs && origWs.readyState === 1) return this.setState({ serverStatus: 1 })
+                else if (origWs)  origWs.close()
+            }
             const newWs = new WebSocket(`ws://${host.replace('http://', '')}/ws`)
             console.log(`ws://${host.replace('http://')}/ws`)
             newWs.onopen = () => {
@@ -89,7 +93,7 @@ class ServerStatusCard extends Component {
     render () {
         const serverStatusIcon = this.state.serverStatus === 0 ? <AntIcon name='ellipsis1' size={70} color='white'/> : this.state.serverStatus === 1 ? <MaterialIcon name='check-circle' size={70} color={colorConstants.success}/> : this.state.serverStatus === 2 ? <MaterialIcon name='warning' size={70} color={colorConstants.warning}/> : <MaterialIcon name='error' size={70} color={colorConstants.danger}/>
         const serverStatusHeaderText = this.state.serverStatus === 0 ? 'Testing connection...' : this.state.serverStatus === 1 ? 'Online' : this.state.serverStatus === 2 ? 'No Host' : 'Offline'
-        const serverStatusDescriptionText = this.state.serverStatus === 0 ? 'Please wait for connection results.' : this.state.serverStatus === 1 ? 'All functions fully operational.' : this.state.serverStatus === 2 ? 'No host has been specified.' : 'Our monkeys have been dispatched fix this ASAP!'
+        const serverStatusDescriptionText = this.state.serverStatus === 0 ? 'Please wait for connection results.' : this.state.serverStatus === 1 ? 'All functions fully operational.' : this.state.serverStatus === 2 ? 'No host has been specified in settings.' : 'Our monkeys have been dispatched fix this ASAP!'
 
         return (
             <Card title='Server Status' containerStyle={styles.cardContainer} titleStyle={{color:'white'}}>

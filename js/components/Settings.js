@@ -99,7 +99,7 @@ export default class Settings extends Component {
             <SettingsItem icon='server' title='Domain URI' value={this.state.host} onPress={() => this.setState({ hostDialog: true })}>
               <Dialog.Container visible={ this.state.hostDialog } onBackdropPress={() => this.setState({ hostDialog: false })}>
                 <Dialog.Title>Change Domain</Dialog.Title>
-                <Dialog.Description>Enter the base URI, including protocol (http://), IP and port. Do not include the routes - the routes automatically used are /classify, /register, /login and /probe.</Dialog.Description>
+                <Dialog.Description>Enter the base URI, including protocol (http://), IP and port. Do not include the routes - the routes automatically used are /classify, /register, /login and /feedback.</Dialog.Description>
                 <Dialog.Input 
                   autoCapitalize='none'
                   autoCorrect={ false }
