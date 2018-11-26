@@ -145,10 +145,39 @@ export default class History extends Component {
       if (!keyHolder.has(navState.routeName)) keyHolder.set(navState.routeName, navState.key)
       this.props.navigation.setParams({ purge: this.deleteItems })
     }
+    
+    componentDidUpdate = () => {
+      const deleteItemId = this.props.navigation.state.params.deleteItemId
+      if (!deleteItemId) return
+      const realm = this.state.realm
+      if (!this.state.realm) return
+      console.log('got delete request')
+      realm.write(() => {
+        realm.delete(realm.objects(schemas.IdentifiedItemSchema.name).filtered('id = $0', deleteItemId))
+        realm.delete(realm.objects(schemas.FailedIdentifiedItemSchema.name).filtered('id = $0', deleteItemId))
+      })
+      const items = [ ...this.state.items ]
+      for (let i = items.length - 1; i >= 0; --i) {
+        if (items[i].id === deleteItemId) {
+          items.splice(i, 1)
+          this.props.navigation.setParams({ deleteItemId: undefined })
+          return this.setState({ items })
+        }
+      }
+      this.props.navigation.setParams({ deleteItemId: undefined })
+
+    }
 
     deleteItems = () => {
-      Realm.deleteFile({ schema: schemas.all })
-      this.state.realm.close()
+      const realm = this.state.realm
+      realm.write(() => {
+        realm.delete(realm.objects(schemas.IdentifiedItemSchema.name))
+        realm.delete(realm.objects(schemas.FailedIdentifiedItemSchema.name))
+      })
+      
+    
+      // Realm.deleteFile({ schema: schemas.all })
+      // this.state.realm.close()
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
       this.setState({ items: [] })
       

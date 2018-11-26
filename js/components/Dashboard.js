@@ -2,7 +2,6 @@ import React, { Component, useState, useEffect } from 'react'
 import keyHolder from '../constants/keys.js'
 import {
     Text,
-    StatusBar,
     TouchableOpacity,
     View,
     TextInput,
@@ -148,7 +147,6 @@ export default class DashboardScreen extends Component {
 
       return (
         <ScrollView style={ styles.container }>
-            <StatusBar backgroundColor='black' />
             <ServerStatusCard />
             <Card title='Tokens Available' containerStyle={styles.cardContainer} titleStyle={{color: 'white'}}>
                 <View style={styles.tokensContainer}>

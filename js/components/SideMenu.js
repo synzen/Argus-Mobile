@@ -9,7 +9,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   // NativeModules,
-  Dimensions,
+  StatusBar,
   Animated,
   Easing,
   LayoutAnimation,
@@ -95,7 +95,7 @@ class UploadButton extends Component {
     else this.setState({ uploadProgress: `100.00%`, uploading: 3 })
   }
 
-  upload = async (imageResponse) => {
+  upload = async imageResponse => {
     // this.setState({ uploading: 1 })
     const tempArr = imageResponse.path.split('/')
     tempArr.pop()
@@ -261,7 +261,6 @@ class UploadButton extends Component {
   }
 
   render () {
-    console.log(`RENDER RENDER ${this.state.uploadProgress}`)
     const uploadDropdownViewStyle = this.state.expandUpload ? {  } : { height: 0, opacity: 0 }
     const uploadDropdownItemsStyle = this.state.expandUpload ? { overflow: 'hidden' } : { overflow: 'hidden', height: 0 }
     
@@ -408,6 +407,7 @@ export default class SideMenu extends Component {
   render () {
     return (
       <View style={styles.container}>
+        <StatusBar backgroundColor='black' />
         <ScrollView>
             <View style={{ ...styles.logoContainer}}>
                 <Text style={ { ...material.headlineWhite, ...systemWeights.light }}>ARGUS</Text>

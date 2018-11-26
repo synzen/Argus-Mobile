@@ -14,10 +14,12 @@ import {
 } from 'react-native';
 import FastImage from 'react-native-fast-image'
 import { material, systemWeights } from 'react-native-typography'
+import keyHolder from '../constants/keys.js'
 import colorConstants from '../constants/colors.js'
 import LinearGradient from 'react-native-linear-gradient'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import Orientation from 'react-native-orientation'
+import { NavigationActions } from 'react-navigation';
 const win = Dimensions.get('window')
 
 class Badge extends Component {
@@ -100,6 +102,10 @@ export default class Details extends Component {
 
     }
 
+    delete = () => {
+        this.props.navigation.navigate('HistoryScreen', { deleteItemId: this.state.id })
+    }
+
     render () {
         const navParams = this.props.navigation.state.params
         return (
@@ -153,25 +159,29 @@ export default class Details extends Component {
                         <View style={styles.miscInfoRow}>
                             <View style={styles.miscInfoItem}>
                                 <Text style={styles.subheading}>File Name</Text>
-                                <Text style={styles.bodyText}>{navParams.id}</Text>
+                                <Text style={styles.insignificantText}>{navParams.id}</Text>
                             </View>
                             <View style={styles.miscInfoItem}>
                                 <Text style={styles.subheading}>Dimensions</Text>
-                                <Text style={styles.bodyText}>{navParams.image.width}x{navParams.image.height}</Text>
+                                <Text style={styles.insignificantText}>{navParams.image.width}x{navParams.image.height}</Text>
                             </View>
                         </View>
                         <View style={styles.miscInfoRow}>
                             <View style={styles.miscInfoItem}>
                                 <Text style={styles.subheading}>Date Modified</Text>
-                                <Text style={styles.bodyText}>{navParams.date.toString()}</Text>
+                                <Text style={styles.insignificantText}>{navParams.date.toString()}</Text>
                             </View>
                             <View style={styles.miscInfoItem}>
                                 <Text style={styles.subheading}>File Size</Text>
-                                <Text style={styles.bodyText}>{navParams.image.sizeMB} MB</Text>
+                                <Text style={styles.insignificantText}>{navParams.image.sizeMB} MB</Text>
                             </View>
 
                         </View>
                     </View>
+                    <View style={styles.border}></View>
+
+                    <View ><Button onPress={this.delete} title='Delete' color={colorConstants.danger}></Button></View>
+
                     {/* <View style={styles.wikipediaButton} ><Button onPress={ () => { } } title='Delete' color='gray'></Button></View> */}
 
 
@@ -214,7 +224,8 @@ const styles = StyleSheet.create({
     miscInfoContainer: {
         flex: 1,
         flexDirection: 'column',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        marginBottom: 15
         
     },
     miscInfoRow: {
@@ -259,6 +270,9 @@ const styles = StyleSheet.create({
     },
     bodyText: {
         color: colorConstants.textSecondary
+    },
+    insignificantText: {
+        color: colorConstants.textDisabled
     },
     badge: {
         // borderRadius: 50,
