@@ -16,7 +16,7 @@
     "axios": "^0.18.0",
     "react": "16.6.0-alpha.8af6728",
     "react-native": "^0.57.1",
-    "react-native-dialog": "github:mmazzarolo/react-native-dialog",
+    "react-native-dialog": "^5.5.0",
     "react-native-elements": "^0.19.1",
     "react-native-fast-image": "^5.0.11",
     "react-native-fs": "^2.12.0",

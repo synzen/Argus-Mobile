@@ -119,11 +119,13 @@ class UploadButton extends Component {
       const realm = await Realm.open({ schema: schemas.all })
 
       // Remove any failed matches if they exist
-      const failedMatches = realm.objects(schemas.FailedIdentifiedItemSchema.name).filtered('id == $0', imageResponse.fileName)
+      // const failedMatches = realm.objects(schemas.FailedIdentifiedItemSchema.name).filtered('id == $0', imageResponse.fileName)
+      const failedMatches = realm.objects(schemas.ClassifiedResultSchema.name).filtered('id == $0', imageResponse.fileName)
       if (failedMatches.length > 0) realm.write(() => realm.delete(failedMatches))
 
       // If there's already a success, open the details page
-      const successMatches = realm.objects(schemas.IdentifiedItemSchema.name).filtered('id == $0', imageResponse.fileName)
+      // const successMatches = realm.objects(schemas.IdentifiedItemSchema.name).filtered('id == $0', imageResponse.fileName)
+      const successMatches = realm.objects(schemas.ClassifiedResultSchema.name).filtered('id == $0', imageResponse.fileName)
       const successVals = successMatches.values()
       if (successMatches.length > 0) {
         // There should never be more than 1 success match, but do this anyways
@@ -164,16 +166,20 @@ class UploadButton extends Component {
       // file.save('./test.jpg')
 
       // Status code must be 200
-      // this.setState({ uploading: 3 }, () => {
-      //   console.log('finished setting uploading 3')
-      // })
       if (response.status !== 200) throw new Error(`Non-200 status code (${response.status})`)
       const classifications = response.data // jsonBody should be an array of objects with the keys specified in js/constants/schemas.ClassificationSchema.properties
 
-      if (Object.keys(classifications).length === 0) Alert.alert('Aw man!', 'No matches found!')
-      else {
+      if (Object.keys(classifications).length === 0) {
+        Alert.alert('Aw man!', 'No matches found!')
+        this.setState({ uploading: 4 })
+        setTimeout(() => {
+          this.setState({ uploading: 0 })
+        })
+        if (resizedImageResponse) RNFS.unlink(resizedImageResponse.path).catch(err => console.log('Failed to unlink downsized photo', err))
+      } else {
         const formatted = {
           id: imageResponse.fileName,
+          successful: true,
           response: JSON.stringify(response, null, 2),
           image: {
             path: imageResponse.path,
@@ -185,22 +191,12 @@ class UploadButton extends Component {
           classifications
         }
         realm.write(() => {
-            realm.create(schemas.IdentifiedItemSchema.name, formatted, true)
+          realm.create(schemas.ClassifiedResultSchema.name, formatted, true)
+          // realm.create(schemas.IdentifiedItemSchema.name, formatted, true)
         })
         formatted.image.base64 = imageResponse.data
 
-        // Update history screen
-        const setParamsAction = NavigationActions.setParams({
-          params: { classifiedResults: [ formatted ] },
-          key: keyHolder.get('HistoryScreen'),
-        })
-        // Since the params persist, remove it after it dispatches one time
-        const setParamsActionClear = NavigationActions.setParams({
-          params: { classifiedResults: undefined },
-          key: keyHolder.get('HistoryScreen'),
-        })
-        this.props.navigation.dispatch(setParamsAction)
-        this.props.navigation.dispatch(setParamsActionClear)
+        this.dispatchToHistoryScreen('classifiedResults', [ formatted ])
 
         // Then navigate to the details
         if (resizedImageResponse) {
@@ -231,33 +227,58 @@ class UploadButton extends Component {
       }
     } catch (err) {
       console.log(err)
+      if (resizedImageResponse) RNFS.unlink(resizedImageResponse.path).catch(err => console.log('Failed to unlink downsized photo', err))
+      const formatted = {
+        id: imageResponse.fileName,
+        successful: false,
+        response: JSON.stringify(response, null, 2) || 'No response available',
+        error: err.message,
+        image: {
+            path: imageResponse.uri,
+            width: imageResponse.width,
+            height: imageResponse.height,
+            sizeMB: (imageResponse.fileSize / 1000000).toFixed(2)
+        },
+        date: imageResponse.timestamp
+      }
       Realm.open({ schema: schemas.all })
       .then(realm => {
         realm.write(() => {
-            realm.create(schemas.FailedIdentifiedItemSchema.name, {
-                id: imageResponse.fileName,
-                response: JSON.stringify(response, null, 2) || 'No response available',
-                error: err.message,
-                image: {
-                    path: imageResponse.uri,
-                    width: imageResponse.width,
-                    height: imageResponse.height,
-                    sizeMB: (imageResponse.fileSize / 1000000).toFixed(2)
-                },
-                date: imageResponse.timestamp
-            }, true)
+            realm.create(schemas.ClassifiedResultSchema.name, formatted, true)
         })
+        formatted.image.base64 = imageResponse.data
+        this.dispatchToHistoryScreen('classifiedResults', [ formatted ])
+
         console.log('saved to failures')
         this.setState({ uploading: 0 })
         Alert.alert('Saved to Failures', err.message)
       })
       .catch(err => {
-          Alert.alert('Error', err.message)
-          this.setState({ uploading: 0 })
-          console.log('realm pipeline err',  err)            
+        formatted.image.base64 = imageResponse.data
+        this.dispatchToHistoryScreen('classifiedResults', [ formatted ])
+        Alert.alert('Error', err.message)
+        this.setState({ uploading: 0 })
+        console.log('realm pipeline err',  err)
+          
       })
     }
     this.setState({ uploadProgress: undefined })
+  }
+
+  dispatchToHistoryScreen = (key, value) => {
+        // Update history screen
+        const setParamsAction = NavigationActions.setParams({
+          params: { [key]: value },
+          key: keyHolder.get('HistoryScreen'),
+        })
+        // Since the params persist, remove it after it dispatches one time
+        const setParamsActionClear = NavigationActions.setParams({
+          params: { [key]: undefined },
+          key: keyHolder.get('HistoryScreen'),
+        })
+        this.props.navigation.dispatch(setParamsAction)
+        this.props.navigation.dispatch(setParamsActionClear)
+
   }
 
   render () {

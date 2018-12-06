@@ -7,7 +7,10 @@ import {
     TextInput,
     StyleSheet,
     ScrollView,
+    ActivityIndicator,
     AsyncStorage,
+    UIManager,
+    LayoutAnimation,
     Alert
 } from 'react-native';
 import { Card, Icon, Button } from 'react-native-elements'
@@ -16,6 +19,9 @@ import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
 import AntIcon from 'react-native-vector-icons/AntDesign'
 import colorConstants from '../constants/colors.js'
 import { PieChart } from 'react-native-svg-charts'
+import schemas from '../constants/schemas.js'
+import Realm from 'realm'
+UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
 
 class ServerStatusCard extends Component {
     constructor(props) {
@@ -43,14 +49,17 @@ class ServerStatusCard extends Component {
         .then(host => {
             if (!host) {
                 if (!this.unmounted) {
+                    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
                     this.setState({ serverStatus: 2})
                     generalState.serverStatus = 2
                 }
             }
             if (host === this.state.host) {
                 const origWs = generalState.getWebsocket()
-                if (origWs && origWs.readyState === 1) return this.setState({ serverStatus: 1 })
-                else if (origWs)  origWs.close()
+                if (origWs && origWs.readyState === 1) {
+                    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+                    return this.setState({ serverStatus: 1 })
+                } else if (origWs)  origWs.close()
             }
             const newWs = new WebSocket(`ws://${host.replace('http://', '')}/ws`)
             console.log(`ws://${host.replace('http://')}/ws`)
@@ -63,6 +72,7 @@ class ServerStatusCard extends Component {
                     // const interval = setInterval(() => {
                     //     newWs.send('ping')
                     // })
+                    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
                     this.setState({ serverStatus: 1 })
                 }
             }
@@ -74,7 +84,10 @@ class ServerStatusCard extends Component {
     
             newWs.onerror = e => {
                 console.log('websocket error')
-                if (!this.unmounted) this.setState({ serverStatus: 3, serverStatusMessage: `Websocket Error` })
+                if (!this.unmounted) {
+                    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+                    this.setState({ serverStatus: 3, serverStatusMessage: `Websocket Error` })
+                }
                 generalState.serverStatus = 3
             }
 
@@ -83,6 +96,7 @@ class ServerStatusCard extends Component {
             console.log(err)
             Alert.alert('Error', err.message)
             if (!this.unmounted) {
+                LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
                 this.setState({ serverStatus: 2})
                 generalState.serverStatus = 2
             }
@@ -122,7 +136,11 @@ class PhotoStorageCard extends Component {
 
         return (
             <Card title='Photos Stored' containerStyle={{ ...styles.cardContainer, marginBottom: 20 }} titleStyle={{color: 'white'}}>
-                <PieChart startAngle={Math.PI * 2} endAngle={0} data={[ { value: .1, key: '1', svg: { fill: colorConstants.blue } }, { value: .9, key: '2', svg: { fill: colorConstants.headerBackgroundColorVeryLight } } ]} style={{ height: 125 }} />
+                { this.props.imagesStored > -1 ? 
+                    <Text style={styles.tokensText}>{this.props.imagesStored}</Text> :
+                    <ActivityIndicator size='large' color={colorConstants.headerBackgroundColorVeryVeryLight}/>
+                }
+                {/* <PieChart startAngle={Math.PI * 2} endAngle={0} data={[ { value: .1, key: '1', svg: { fill: colorConstants.blue } }, { value: .9, key: '2', svg: { fill: colorConstants.headerBackgroundColorVeryLight } } ]} style={{ height: 125 }} /> */}
             </Card>
         )
     }
@@ -135,6 +153,19 @@ export default class DashboardScreen extends Component {
 
     constructor(props) {
         super(props)
+        this.state = {
+            imagesStored: -1
+        }
+
+        setTimeout(() => {
+            Realm.open({ schema: schemas.all })
+            .then(realm => {
+                const allObjects = realm.objects(schemas.ClassifiedResultSchema.name)
+                LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+                this.setState({ imagesStored: allObjects.length })
+            })
+            .catch(console.log)
+        })
     }
 
     componentDidMount = function () {
@@ -156,7 +187,7 @@ export default class DashboardScreen extends Component {
                     </TouchableOpacity>
                 </View>
             </Card>
-            <PhotoStorageCard />
+            <PhotoStorageCard imagesStored={this.state.imagesStored} />
 
             
         </ScrollView>

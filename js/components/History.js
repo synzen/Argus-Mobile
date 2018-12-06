@@ -32,7 +32,7 @@ const NUMBER_OF_TILES_PER_ROW = 3
 function HistoryTile (props) {
   return (
     <TouchableOpacity onPress={ () => props.navigate('DetailsScreen', props.data) } style={styles.historyTile}>
-      { props.data.success ? 
+      { props.data.successful ? 
         undefined :
         <View style={styles.historyTileOverlay}>
           <Icon name='error' color={colorConstants.danger} style={styles.historyTileIcon}/>
@@ -81,7 +81,7 @@ export default class History extends Component {
           if (existingItem.id === item.id) exists = true
         }
         if (exists === false) {
-          item.success = true
+          console.log('updating with new item', item)
           newItems.push(item)
         }
       }
@@ -109,17 +109,15 @@ export default class History extends Component {
           Realm.open({ schema: schemas.all })
           .then(realm => {
             this.setState({ realm })
-            const aggregated = []
-            const succeeded = realm.objects(schemas.IdentifiedItemSchema.name).sorted('date', true).values()
-            const failed = realm.objects(schemas.FailedIdentifiedItemSchema.name).sorted('date', true).values()
-            for (s of succeeded) aggregated.push({ ...s, success: true })
-            for (f of failed) aggregated.push({ ...f, success: false })
-            const succeededStateItems = []
+            // const aggregated = []
+            const allObjects = realm.objects(schemas.ClassifiedResultSchema.name)
+            // const succeeded = allObjects.filtered('successful = true').sorted('date', true).values()
+            // const failed = allObjects.filtered('successful = false').sorted('date', true).values()
+            const allValues = allObjects.values()
             const stateItems = []
-            const failedStateItems = []
             let c = 0
-            if (aggregated.length === 0) return this.setState({ loading: false })
-            for (item of aggregated) {
+            if (allObjects.length === 0) return this.setState({ loading: false })
+            for (item of allValues) {
               const localItem = item // Specifically define it here so when the item is referred to in the process, the localItem is referred to rather than the changing item in the for loop (closures)
               RNFS.readFile(item.image.path, 'base64')
               .then(data => {
@@ -127,12 +125,12 @@ export default class History extends Component {
                 stateItem.image.base64 = data
                 stateItems.push(stateItem)
                 // this.setState({ items: [ ...this.state.items, stateItem ], loading: false })
-                if (++c === aggregated.length) this.setState({ items: stateItems, realm, loading: false })
+                if (++c === allObjects.length) this.setState({ items: stateItems, realm, loading: false })
               })
               .catch(err => {
                 console.log(err)
                 // if (this.state.loading) this.setState({ loading: false })
-                if (++c === aggregated.length) this.setState({ items: stateItems, realm, loading: false })
+                if (++c === allObjects.length) this.setState({ items: stateItems, realm, loading: false })
               })
             }
           })
@@ -170,11 +168,13 @@ export default class History extends Component {
 
     deleteItems = () => {
       const realm = this.state.realm
+      // realm.write(() => {
+      //   realm.delete(realm.objects(schemas.IdentifiedItemSchema.name))
+      //   realm.delete(realm.objects(schemas.FailedIdentifiedItemSchema.name))
+      // })
       realm.write(() => {
-        realm.delete(realm.objects(schemas.IdentifiedItemSchema.name))
-        realm.delete(realm.objects(schemas.FailedIdentifiedItemSchema.name))
+        realm.delete(realm.objects(schemas.ClassifiedResultSchema.name))
       })
-      
     
       // Realm.deleteFile({ schema: schemas.all })
       // this.state.realm.close()
@@ -187,10 +187,7 @@ export default class History extends Component {
       const succeeded = []
       let tempSuccess = []
 
-      // const failed = []
-      // let tempFailed = []
       for (item of this.state.items) {
-        // if (item.success) {
           if (tempSuccess.length < NUMBER_OF_TILES_PER_ROW) {
             tempSuccess.push(item)
           } else {
@@ -198,18 +195,8 @@ export default class History extends Component {
             tempSuccess = []
             tempSuccess.push(item)
           }
-        // } else {
-        //   if (tempFailed.length < 4) {
-        //     tempFailed.push(item)
-        //   } else {
-        //     failed.push(tempFailed)
-        //     tempFailed = []
-        //     tempFailed.push(item)
-        //   }
-        // }
       }
       if (tempSuccess.length > 0) succeeded.push(tempSuccess)
-      // if (tempFailed.length > 0) failed.push(tempFailed)
 
       return this.state.loading ?
         <View style={styles.loadingView}><ActivityIndicator size='large' color={colorConstants.blue}/></View>

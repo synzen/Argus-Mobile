@@ -2,38 +2,10 @@ const ImageSchema = {
   name: 'Image',
   properties: {
     path: 'string',
+    url: 'string?', // hosted on the server, if available
     width: 'int',
     height: 'int',
     sizeMB: 'string'
-  }
-}
-
-const IdentifiedItemSchema = {
-  name: 'IdentifiedItem',
-  primaryKey: 'id',
-  properties: {
-    id: 'string',
-    image: 'Image',
-    response: 'string',
-    date: {
-      type: 'date',
-      default: new Date()
-    },
-    classifications: 'Classification[]'
-  }
-}
-
-const FailedIdentifiedItemSchema = {
-  name: 'FailedIdentifiedItem',
-  primaryKey: 'id',
-  properties: {
-    id: 'string',
-    image: 'Image',
-    error: 'string',
-    date: {
-      type: 'date',
-      default: new Date()
-    }
   }
 }
 
@@ -47,10 +19,26 @@ const ClassificationSchema = {
   }
 }
 
+const ClassifiedResultSchema = {
+  name: 'ClassifiedResult',
+  primaryKey: 'id',
+  properties: {
+    id: 'string',
+    image: 'Image',
+    successful: 'bool',
+    response: 'string',
+    error: 'string?',
+    date: {
+      type: 'date',
+      default: new Date()
+    },
+    classifications: 'Classification[]'
+  }
+}
+
 export default {
-  IdentifiedItemSchema,
-  FailedIdentifiedItemSchema,
+  ClassifiedResultSchema,
   ClassificationSchema,
   ImageSchema,
-  all: [ IdentifiedItemSchema, FailedIdentifiedItemSchema, ClassificationSchema, ImageSchema ]
+  all: [ ClassifiedResultSchema, ClassificationSchema, ImageSchema ]
 }
