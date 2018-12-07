@@ -34,6 +34,15 @@ class Badge extends Component {
     }
 }
 
+const LightboxView = ({ navigator }) => (
+    <Lightbox navigator={navigator}>
+      <FastImage
+        style={{ height: 300, width: 300 }}
+        source={{ uri: 'http://knittingisawesome.com/wp-content/uploads/2012/12/cat-wearing-a-reindeer-hat1.jpg' }}
+      />
+    </Lightbox>
+  );
+
 export default class Details extends Component {
     static getDerivedStateFromProps (nextProps, state) {
         const nextParams = nextProps.navigation.state.params
@@ -110,7 +119,9 @@ export default class Details extends Component {
         const navParams = this.props.navigation.state.params
         return (
             <ScrollView>
-                <TouchableHighlight onPress={() => this.props.navigation.navigate('ViewImageScreen', { base64: navParams.image.base64, width: navParams.image.width, height: navParams.image.height })}><FastImage source={{uri: `data:image/jpg;base64,${navParams.image.base64}`}} style={{ ...styles.image, height: 275, width: this.state.imageWidth }}/></TouchableHighlight>
+            <TouchableHighlight onPress={() => this.props.navigation.navigate('ViewImageScreen', { base64: navParams.image.base64, width: navParams.image.width, height: navParams.image.height })}>
+                    <FastImage source={{uri: `data:image/jpg;base64,${navParams.image.base64}`}} style={{ ...styles.image, height: 275, width: this.state.imageWidth }}/>
+                </TouchableHighlight>
                 <LinearGradient colors={['rgba(0,0,0,0)', 'rgba(0,0,0,.7)']} style={styles.gradientContainer}>
                     <View style={{ ...styles.gradientTextContainer, height: 90, width: this.state.imageWidth }}>
                         <View style={{flex: 1, paddingRight: 5}}>
@@ -129,7 +140,7 @@ export default class Details extends Component {
                             <View style={styles.badgeContainer}>
                                 { //[{ description: 'dog', score: 12 }, { description: 'doge', score: 50 }, { description: 'dogggo', score: 70 }, { description: 'doggo', score: 98 }, { description: 'duck', score: 35 }, { description: 'dogjesus', score: 85 }, { description: 'dogod', score: 75 }, { description: 'dug', score: 54 }, { description: 'donkey', score: 12 },]
                                     navParams.classifications.map(item => {
-                                    return <Badge key={item.description} selected={item.description === this.state.selectedMatchName} text={item.description} onPress={() => this.changeSelectedMatch(item)}></Badge>
+                                    return <Badge key={item.score + item.description} selected={item.description === this.state.selectedMatchName} text={item.description} onPress={() => this.changeSelectedMatch(item)}></Badge>
                                 }) }
                             </View>
                             <View style={styles.border}></View>

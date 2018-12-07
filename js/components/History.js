@@ -80,10 +80,7 @@ export default class History extends Component {
         for (const existingItem of state.items) {
           if (existingItem.id === item.id) exists = true
         }
-        if (exists === false) {
-          console.log('updating with new item', item)
-          newItems.push(item)
-        }
+        if (exists === false) newItems.push(item)
       }
       if (newItems) {
         return {
@@ -124,13 +121,13 @@ export default class History extends Component {
                 const stateItem = { ...localItem }
                 stateItem.image.base64 = data
                 stateItems.push(stateItem)
-                // this.setState({ items: [ ...this.state.items, stateItem ], loading: false })
-                if (++c === allObjects.length) this.setState({ items: stateItems, realm, loading: false })
+                this.setState({ items: [ ...this.state.items, stateItem ], loading: false })
+                // if (++c === allObjects.length) this.setState({ items: stateItems, realm, loading: false })
               })
               .catch(err => {
                 console.log(err)
-                // if (this.state.loading) this.setState({ loading: false })
-                if (++c === allObjects.length) this.setState({ items: stateItems, realm, loading: false })
+                if (this.state.loading) this.setState({ loading: false })
+                // if (++c === allObjects.length) this.setState({ items: stateItems, realm, loading: false })
               })
             }
           })

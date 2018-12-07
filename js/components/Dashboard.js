@@ -39,11 +39,14 @@ class ServerStatusCard extends Component {
     }
 
     componentDidMount = function () {
-        this.tryConnection()
+        this.tryConnection(true)
     }
 
-    tryConnection = () => {
-        this.setState({ serverStatus: 0 })
+    tryConnection = skipInitialLayoutAnim => {
+        if (this.state.serverStatus !== 0) {
+            LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+            this.setState({ serverStatus: 0 })
+        }
 
         AsyncStorage.getItem('host')
         .then(host => {
@@ -53,13 +56,14 @@ class ServerStatusCard extends Component {
                     this.setState({ serverStatus: 2})
                     generalState.serverStatus = 2
                 }
+                return
             }
             if (host === this.state.host) {
                 const origWs = generalState.getWebsocket()
                 if (origWs && origWs.readyState === 1) {
                     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
                     return this.setState({ serverStatus: 1 })
-                } else if (origWs)  origWs.close()
+                } else if (origWs)  origWs.close() 
             }
             const newWs = new WebSocket(`ws://${host.replace('http://', '')}/ws`)
             console.log(`ws://${host.replace('http://')}/ws`)
@@ -96,7 +100,7 @@ class ServerStatusCard extends Component {
             console.log(err)
             Alert.alert('Error', err.message)
             if (!this.unmounted) {
-                LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+                // LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
                 this.setState({ serverStatus: 2})
                 generalState.serverStatus = 2
             }
@@ -117,7 +121,7 @@ class ServerStatusCard extends Component {
                         <Text style={styles.statusDescriptionText}>{serverStatusDescriptionText}</Text>
                     </View>
                 </View>
-                { this.state.serverStatus > 1 ? <Button title='Retry' onPress={this.tryConnection} backgroundColor={colorConstants.headerBackgroundColorVeryLight} containerViewStyle={styles.refreshButtonContainer} /> : undefined }
+                { this.state.serverStatus > 1 ? <Button title='Retry' onPress={() => this.tryConnection()} backgroundColor={colorConstants.headerBackgroundColorVeryLight} containerViewStyle={styles.refreshButtonContainer} /> : undefined }
             </Card>
         )
     }

@@ -17,6 +17,9 @@ import { material } from 'react-native-typography'
 import { NavigationActions } from 'react-navigation'
 import globalState from '../constants/state.js'
 import keyHolder from '../constants/keys.js'
+import { Container, Content, StyleProvider, Input } from 'native-base'
+import getTheme from '../../native-base-theme/components';
+import darkMaterial from '../../native-base-theme/variables/darkMaterial';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 // UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
 
@@ -154,9 +157,12 @@ export default class Login extends Component {
                     <Text style={styles.headerText}>{this.state.processing ? this.state.ellipsisText : this.state.loginForm ? 'Log In' : 'Register'}</Text>
                     <Text style={styles.subheaderText}>{this.state.loginForm === true ? `Log in to see your saved classifications and access them from the web or anywhere.` : `Register to save your classifications and access them from the web or anywhere.`}</Text>
                 </Animated.View>
-                <TextInput style={styles.inputContainer} selectionColor={colorConstants.blue} editable={!this.state.processing} onChangeText={t => this.setState({ email: t })} onSubmitEditing={this.state.loginForm ? this.login : this.register} style={styles.input} underlineColorAndroid={colorConstants.headerBackgroundColorLight} placeholder='Email' placeholderTextColor={colorConstants.textDisabled}/>
-                <TextInput style={styles.inputContainer} editable={!this.state.processing} selectionColor={colorConstants.blue} onChangeText={t => this.setState({ password: t })} onSubmitEditing={this.state.loginForm ?  this.login : this.register} style={styles.input} underlineColorAndroid={colorConstants.headerBackgroundColorLight} placeholder='Password' placeholderTextColor={colorConstants.textDisabled} secureTextEntry={true} autoCapitalize='none' autoCorrect={false}/>
-                
+                <StyleProvider style={getTheme(darkMaterial)}>
+                {/* <Input placeholder='Regular Textbox' /> */}
+                <View>
+                <Input style={styles.inputContainer} selectionColor={colorConstants.blue} editable={!this.state.processing} onChangeText={t => this.setState({ email: t })} onSubmitEditing={this.state.loginForm ? this.login : this.register} style={styles.input} underlineColorAndroid={colorConstants.headerBackgroundColorLight} placeholder='Email' placeholderTextColor={colorConstants.textDisabled}/>
+                <Input style={styles.inputContainer} editable={!this.state.processing} selectionColor={colorConstants.blue} onChangeText={t => this.setState({ password: t })} onSubmitEditing={this.state.loginForm ?  this.login : this.register} style={styles.input} underlineColorAndroid={colorConstants.headerBackgroundColorLight} placeholder='Password' placeholderTextColor={colorConstants.textDisabled} secureTextEntry={true} autoCapitalize='none' autoCorrect={false}/>
+                </View></StyleProvider>    
                 <Text style={styles.forgotPassword}>Forgot Password?</Text>
                 <Button raised={this.state.loginForm} loading={this.state.loginForm && this.state.processing} title={this.state.processing && this.state.loginForm ? 'Logging in...' : 'Log In' } containerViewStyle={styles.loginButtonContainer} disabled={this.state.processing} buttonStyle={ { ...styles.loginButton, backgroundColor: this.state.loginForm ? colorConstants.success : colorConstants.gray } } disabled={this.state.processing} onPress={this.login}/>
                 <Button raised={!this.state.loginForm} loading={!this.state.loginForm && this.state.processing} title={this.state.processing && !this.state.loginForm ? 'Registering...' : 'Register'} containerViewStyle={styles.loginButtonContainer2} disabled={this.state.processing} buttonStyle={{ backgroundColor: this.state.loginForm ? colorConstants.gray : colorConstants.blue }} onPress={this.register}/>

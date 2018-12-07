@@ -188,7 +188,7 @@ class UploadButton extends Component {
             sizeMB: (imageResponse.fileSize / 1000000).toFixed(2)
           },
           date: imageResponse.timestamp,
-          classifications
+          classifications: classifications.sort((a, b) => b.score - a.score)
         }
         realm.write(() => {
           realm.create(schemas.ClassifiedResultSchema.name, formatted, true)

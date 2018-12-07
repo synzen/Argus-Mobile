@@ -8,11 +8,14 @@ import {
     Alert,
     FlatList,
     Dimensions,
+    LayoutAnimation,
+    UIManager,
     Image
 } from 'react-native';
 import ImageZoom from 'react-native-image-pan-zoom';
 import FastImage from 'react-native-fast-image'
 import Orientation from 'react-native-orientation'
+UIManager.setLayoutAnimationEnabledExperimental && UIManager.setLayoutAnimationEnabledExperimental(true);
 
 export default class ViewImage extends Component {
     static navigationOptions = {
@@ -42,7 +45,8 @@ export default class ViewImage extends Component {
     }
 
     _orientationChanged = orientation => {
-        setTimeout(() => this.setState(this.calcDimensions()), 0)
+        // Set a timeout since the orientation may take a short time to before it actually changes
+        setTimeout(() => this.setState(this.calcDimensions()), 10)
     }
 
     calcDimensions = () => {
