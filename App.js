@@ -10,7 +10,7 @@ import ViewImage from './js/components/ViewImage.js'
 import Icon from 'react-native-vector-icons/Ionicons'
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons'
 import colorConstants from './js/constants/colors'
-import { StyleSheet } from 'react-native'
+import { View, StyleSheet } from 'react-native'
 import React from 'react'
 import { fromLeft } from 'react-navigation-transitions'
 
@@ -38,7 +38,7 @@ const historyNavigator = createStackNavigator({
     navigationOptions: ({ navigation }) => {
       return {
         headerLeft: (<Icon name='ios-menu' size={30} onPress={() => navigation.toggleDrawer()} color={colorConstants.headerTextColor} style={styles.headerLeftButton} />),
-        headerRight: (<MaterialIcon name='delete' size={30} onPress={navigation.getParam('purge')} color={colorConstants.gray} style={styles.headerRightButton}/>),
+        headerRight: (<View style={styles.headerRightButtonsContainer}><MaterialIcon name='refresh' size={30} onPress={navigation.getParam('refresh')} color={colorConstants.gray} style={styles.headerRightButton}/><MaterialIcon name='delete' size={30} onPress={navigation.getParam('purge')} color={colorConstants.gray} style={styles.headerRightButton}/></View>),
         headerStyle: styles.headerStyle,
         headerTintColor: colorConstants.headerTextColor
       }
@@ -124,6 +124,10 @@ export default createStackNavigator({
 
 
 const styles = StyleSheet.create({
+  headerRightButtonsContainer: {
+    display: 'flex',
+    flexDirection: 'row'
+  },
   headerLeftButton: {
     paddingLeft: 20,
     flex: 1,

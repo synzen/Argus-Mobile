@@ -77,7 +77,7 @@ export default class ViewImage extends Component {
                         imageWidth={this.state.width}
                         imageHeight={this.state.height}
                         style={styles.container}>
-                    <FastImage source={{uri: `data:image/jpg;base64,${navProps.base64}`}} style={ { height: this.state.height, width: this.state.width, alignSelf: 'center' } } resizeMode={FastImage.resizeMode.stretch}/>
+                    <FastImage source={{uri: navProps.source}} style={ { height: this.state.height, width: this.state.width, alignSelf: 'center' } } resizeMode={FastImage.resizeMode.stretch}/>
                 </ImageZoom>
         )
     }

@@ -1,11 +1,11 @@
 const ImageSchema = {
   name: 'Image',
   properties: {
-    path: 'string',
+    path: 'string?',
     url: 'string?', // hosted on the server, if available
     width: 'int',
     height: 'int',
-    sizeMB: 'string'
+    sizeMB: 'string?'
   }
 }
 
@@ -23,10 +23,10 @@ const ClassifiedResultSchema = {
   name: 'ClassifiedResult',
   primaryKey: 'id',
   properties: {
+    user: 'string',
     id: 'string',
     image: 'Image',
     successful: 'bool',
-    response: 'string',
     error: 'string?',
     date: {
       type: 'date',

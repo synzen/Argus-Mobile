@@ -31,6 +31,7 @@ import RNFS from 'react-native-fs'
 import Dialog from 'react-native-dialog'
 import { Button, Card } from 'react-native-elements'
 import axios from 'axios'
+import Realm from 'realm'
 // import CameraRollExtended from 'react-native-store-photos-album'
 // var RCTCameraRollManager = NativeModules.CameraRollExtendedManager;
 
@@ -55,6 +56,7 @@ class UploadButton extends Component {
   }
 
   clickUploadImage = () => {
+    if (!this.props.email) return Alert.alert('Uh oh!', 'You need to login first!')
     ImagePicker.launchImageLibrary({}, (response) => {
       if (response.didCancel) console.log('User cancelled image picker');
       else if (response.error) console.log('ImagePicker Error: ', response.error);
@@ -68,6 +70,7 @@ class UploadButton extends Component {
   }
 
   clickUploadCamera = () => {
+    if (!this.props.email) return Alert.alert('Uh oh!', 'You need to login first!')
     const options = {
       storageOptions: {
         skipBackup: true,
@@ -120,23 +123,18 @@ class UploadButton extends Component {
 
       // Remove any failed matches if they exist
       // const failedMatches = realm.objects(schemas.FailedIdentifiedItemSchema.name).filtered('id == $0', imageResponse.fileName)
-      const failedMatches = realm.objects(schemas.ClassifiedResultSchema.name).filtered('id == $0', imageResponse.fileName)
-      if (failedMatches.length > 0) realm.write(() => realm.delete(failedMatches))
-
-      // If there's already a success, open the details page
-      // const successMatches = realm.objects(schemas.IdentifiedItemSchema.name).filtered('id == $0', imageResponse.fileName)
-      const successMatches = realm.objects(schemas.ClassifiedResultSchema.name).filtered('id == $0', imageResponse.fileName)
-      const successVals = successMatches.values()
-      if (successMatches.length > 0) {
-        // There should never be more than 1 success match, but do this anyways
-        for (const item of successVals) {
-          const copy = { ...item }
-          copy.image.base64 = imageResponse.data
-          this.setState({ uploading: 0 })
-          this.props.navigation.navigate('DetailsScreen', copy)
-        }
-        return
-      }
+      const matches = realm.objects(schemas.ClassifiedResultSchema.name).filtered('id == $0', imageResponse.fileName)
+      // if (matches.length > 0) realm.write(() => realm.delete(matches))
+      const values = matches.values()
+      // for (val of values) {
+      //   if (val.successful = false) realm.write(() => realm.delete(val))
+      //   else {
+      //     const copy = { ...item }
+      //     copy.image.base64 = imageResponse.data
+      //     this.setState({ uploading: 0 })
+      //     return this.props.navigation.navigate('DetailsScreen', copy)
+      //   }
+      // }
 
       resizedImageResponse = await ImageResizer.createResizedImage(imageResponse.uri, newWidth, newHeight, 'JPEG', 100, 0, newPath)
       // const newUri = await RCTCameraRollManager.saveToCameraRoll({ uri: resizedImageResponse.path, album: 'Argus' }, 'photo')
@@ -151,25 +149,40 @@ class UploadButton extends Component {
       console.log(this.props.email)
       console.log(this.props.password)
       console.log(resizedImageResponse.path)
-      formData.append('username', this.props.email) // you can append anyone.
-      formData.append('password', this.props.password)
+      // formData.append('username', this.props.email) // you can append anyone.
+      // formData.append('password', this.props.password)
+      formData.append('userFileUri', imageResponse.path)
       formData.append('photo', {
           uri: resizedImageResponse.uri,
           type: 'image/jpeg', // or photo.type
-          name: 'testPhotoName'
+          name: imageResponse.fileName //'testPhotoName.jpg'
       })
       console.log('fetching///', host + '/classify')
       this.setState({ uploading: 2 })
-      response = await axios.post(host + '/classify', formData, { onUploadProgress: this._onUploadProgress })
+      await axios.post(host + '/login', {
+        username: this.props.email,
+        password: this.props.password
+      })
+      console.log(imageResponse.fileName)
+      console.log('logged in')
+      response = await axios.post(host + '/classify', formData, { onUploadProgress: this._onUploadProgress, validateStatus: () => true })
+
+      if (response.status !== 200) {
+        console.log(response)
+        throw new Error('Non 200 status code ' + response.status)
+      }
+      console.log('/classify success')
       // If this is sent to a python flask server, then receive the POST(! not GET!) request as such:
       // file = request.files['photo']
       // file.save('./test.jpg')
 
       // Status code must be 200
-      if (response.status !== 200) throw new Error(`Non-200 status code (${response.status})`)
-      const classifications = response.data // jsonBody should be an array of objects with the keys specified in js/constants/schemas.ClassificationSchema.properties
-
-      if (Object.keys(classifications).length === 0) {
+      // if (response.status !== 200) throw new Error(`Non-200 status code (${response.status})`)
+      const data = response.data
+      console.log(data)
+      const classifications = data.predictions // jsonBody should be an array of objects with the keys specified in js/constants/schemas.ClassificationSchema.properties
+      console.log(classifications)
+      if (classifications.length === 0) {
         Alert.alert('Aw man!', 'No matches found!')
         this.setState({ uploading: 4 })
         setTimeout(() => {
@@ -178,11 +191,12 @@ class UploadButton extends Component {
         if (resizedImageResponse) RNFS.unlink(resizedImageResponse.path).catch(err => console.log('Failed to unlink downsized photo', err))
       } else {
         const formatted = {
-          id: imageResponse.fileName,
+          user: this.props.email,
+          id: data.id, // imageResponse.fileName,
           successful: true,
-          response: JSON.stringify(response, null, 2),
           image: {
             path: imageResponse.path,
+            url: data.image.url,
             width: imageResponse.width,
             height: imageResponse.height,
             sizeMB: (imageResponse.fileSize / 1000000).toFixed(2)
@@ -195,7 +209,6 @@ class UploadButton extends Component {
           // realm.create(schemas.IdentifiedItemSchema.name, formatted, true)
         })
         formatted.image.base64 = imageResponse.data
-
         this.dispatchToHistoryScreen('classifiedResults', [ formatted ])
 
         // Then navigate to the details
@@ -226,12 +239,11 @@ class UploadButton extends Component {
         }
       }
     } catch (err) {
-      console.log(err)
       if (resizedImageResponse) RNFS.unlink(resizedImageResponse.path).catch(err => console.log('Failed to unlink downsized photo', err))
       const formatted = {
+        user: this.props.email,
         id: imageResponse.fileName,
         successful: false,
-        response: JSON.stringify(response, null, 2) || 'No response available',
         error: err.message,
         image: {
             path: imageResponse.uri,
@@ -243,23 +255,29 @@ class UploadButton extends Component {
       }
       Realm.open({ schema: schemas.all })
       .then(realm => {
-        realm.write(() => {
-            realm.create(schemas.ClassifiedResultSchema.name, formatted, true)
-        })
-        formatted.image.base64 = imageResponse.data
-        this.dispatchToHistoryScreen('classifiedResults', [ formatted ])
 
+        formatted.image.base64 = imageResponse.data
+        realm.write(() => {
+          realm.create(schemas.ClassifiedResultSchema.name, { ...formatted }, true)
+        })
+        this.dispatchToHistoryScreen('classifiedResults', [ formatted ])
+        this.dispatchToHistoryScreen('classifiedResults', undefined)
+        
         console.log('saved to failures')
+        console.log(err.response)
         this.setState({ uploading: 0 })
-        Alert.alert('Saved to Failures', err.message)
+        console.log('HEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE2')
+        Alert.alert('Uh oh!', err.response ? err.response.data.msg : err.message + '\n\nYou can try to upload again at a later time.')
       })
-      .catch(err => {
+      .catch(realmErr => {
         formatted.image.base64 = imageResponse.data
         this.dispatchToHistoryScreen('classifiedResults', [ formatted ])
-        Alert.alert('Error', err.message)
+        this.dispatchToHistoryScreen('classifiedResults', undefined)
         this.setState({ uploading: 0 })
         console.log('realm pipeline err',  err)
-          
+        console.log('HEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE')
+        Alert.alert('Uh oh!', err.response ? err.response.data.msg : err.message)
+
       })
     }
     this.setState({ uploadProgress: undefined })
@@ -406,19 +424,25 @@ export default class SideMenu extends Component {
         { text: 'Cancel', style: 'cancel' },
         { text: 'Yes', onPress: () => {
           AsyncStorage.removeItem('login').then(() => {
-            const setParamsAction = NavigationActions.setParams({
-              params: { logout: true },
+            const setParamsActionHistory = NavigationActions.setParams({
+              params: { loggedOut: true },
               key: keyHolder.get('HistoryScreen'),
             })
             const setParamsActionReset = NavigationActions.setParams({
               params: { email: undefined },
               key: this.props.navigation.state.key,
             });
+            const setParamsActionResetDashboard = NavigationActions.setParams({
+              params: { email: '', password: '' },
+              key: keyHolder.get('DashboardScreen'),
+            });
             this.props.navigation.dispatch(setParamsActionReset)
-            this.props.navigation.dispatch(setParamsAction)
+            this.props.navigation.dispatch(setParamsActionHistory)
+            this.props.navigation.dispatch(setParamsActionResetDashboard)
             globalState.email = undefined
             globalState.password = undefined
             this.setState({ email: undefined })
+            Realm.deleteFile({ schema: schemas.all })
           })
         }}
       ])

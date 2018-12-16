@@ -76,7 +76,7 @@ export default class Details extends Component {
         const max = classifications ? Details.calculateBestClassification(classifications) : {}
 
         this.state = {
-            showResponse: false,
+            // showResponse: false,
             id: params.id,
             selectedMatchPercent: '',
             selectedMatchName: '',
@@ -117,10 +117,12 @@ export default class Details extends Component {
 
     render () {
         const navParams = this.props.navigation.state.params
+        const imageSrc =  navParams.image.base64 ? `data:image/jpg;base64,${navParams.image.base64}` : navParams.image.url
+
         return (
             <ScrollView>
-            <TouchableHighlight onPress={() => this.props.navigation.navigate('ViewImageScreen', { base64: navParams.image.base64, width: navParams.image.width, height: navParams.image.height })}>
-                    <FastImage source={{uri: `data:image/jpg;base64,${navParams.image.base64}`}} style={{ ...styles.image, height: 275, width: this.state.imageWidth }}/>
+            <TouchableHighlight onPress={() => this.props.navigation.navigate('ViewImageScreen', { source: imageSrc, width: navParams.image.width, height: navParams.image.height })}>
+                    <FastImage source={{uri: imageSrc}} style={{ ...styles.image, height: 275, width: this.state.imageWidth }}/>
                 </TouchableHighlight>
                 <LinearGradient colors={['rgba(0,0,0,0)', 'rgba(0,0,0,.7)']} style={styles.gradientContainer}>
                     <View style={{ ...styles.gradientTextContainer, height: 90, width: this.state.imageWidth }}>
@@ -134,7 +136,7 @@ export default class Details extends Component {
                     </View>
                 </LinearGradient>
                 <View style={styles.container}>
-                    { !navParams.error ? 
+                    { navParams.successful ? 
                         (<View>
                             <Text style={styles.heading}>Other Matches</Text>
                             <View style={styles.badgeContainer}>
@@ -149,13 +151,13 @@ export default class Details extends Component {
                             <Animated.Text style={{ ...styles.bodyText, opacity: this.state.fadeAnim }}>{this.state.selectedSummary}</Animated.Text>
                             <View style={styles.wikipediaButton}>{ this.state.selectedWikipedia ? <Button onPress={() => this.openLink(this.state.selectedWikipedia)} title='Wikipedia' color={colorConstants.headerBackgroundColorLight}></Button> : undefined }</View>
                             <View style={styles.border}></View>
-                            <Text style={styles.heading}>Response</Text>
+                            {/* <Text style={styles.heading}>Response</Text>
                             {  this.state.showResponse ?
                                 <Text style={styles.bodyText}>{JSON.stringify(navParams.response, null, 2)}</Text>
                                 :
                                 <View style={styles.wikipediaButton} ><Button onPress={() => this.setState({ showResponse: true })} title='Show' color={colorConstants.headerBackgroundColorLight}></Button></View>
                             }
-                            <View style={styles.border}></View>
+                            <View style={styles.border}></View> */}
                         </View>)
                         :
                         (<View>
