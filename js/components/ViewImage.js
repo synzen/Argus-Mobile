@@ -30,10 +30,7 @@ export default class ViewImage extends Component {
             cropWidth: 0,
             cropHeight: 0
         }
-
         this.state = this.calcDimensions()
-
-
     }
 
     componentDidMount = function () {

@@ -35,7 +35,7 @@ const NUMBER_OF_TILES_PER_ROW = 3
 
 function HistoryTile (props) {
   const imageSrc = props.data.image.base64 ? `data:image/jpg;base64,${props.data.image.base64}` : props.data.image.url
-  console.log('HISTORY TILE IS USING BASE64?' ,props.data.image.base64 ? true : false)
+
   return (
     <TouchableOpacity onPress={ () => props.navigate('DetailsScreen', props.data) } style={styles.historyTile}>
       { props.data.successful ? 
@@ -127,7 +127,7 @@ export default class History extends Component {
           .then(realm => {
             this.setState({ realm })
             // const aggregated = []
-            const allObjects = realm.objects(schemas.ClassifiedResultSchema.name).filtered('user == $0', this.state.login.email)
+            const allObjects = realm.objects(schemas.ClassifiedResultSchema.name).filtered('user == $0', this.state.login.email).sorted('date')
             // const succeeded = allObjects.filtered('successful = true').sorted('date', true).values()
             // const failed = allObjects.filtered('successful = false').sorted('date', true).values()
             const allValues = allObjects.values()
@@ -144,14 +144,12 @@ export default class History extends Component {
               }
               RNFS.readFile(item.image.path, 'base64')
               .then(data => {
-                console.log('rnfs read success')
                 const stateItem = { ...localItem }
                 stateItem.image.base64 = data
                 stateItems.push(stateItem)
                 this.setState({ items: [ ...this.state.items, stateItem ], loading: false })
               })
               .catch(err => {
-                console.log('rnfs read fail')
                 console.log(err)
                 const stateItem = { ...localItem }
                 stateItems.push(stateItem)

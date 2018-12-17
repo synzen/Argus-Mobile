@@ -131,7 +131,7 @@ export default class Details extends Component {
                             <Animated.Text style={{ ...styles.subheading, marginVertical: 5, opacity: this.state.fadeAnim }}>{ this.state.selectedMatchPercent ?  `${(this.state.selectedMatchPercent * 100).toFixed(2)}% Score` : ''}</Animated.Text>
                         </View>
                         <TouchableOpacity style={{padding: 10}}>
-                            <Icon name='arrow-expand' size={30} color={colorConstants.textPrimary} onPress={() => this.props.navigation.navigate('ViewImageScreen', { base64: navParams.image.base64, width: navParams.image.width, height: navParams.image.height })}/>
+                            <Icon name='arrow-expand' size={30} color={colorConstants.textPrimary} onPress={() => this.props.navigation.navigate('ViewImageScreen', { source: imageSrc, width: navParams.image.width, height: navParams.image.height })}/>
                         </TouchableOpacity>
                     </View>
                 </LinearGradient>

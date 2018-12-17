@@ -122,19 +122,20 @@ class UploadButton extends Component {
       const realm = await Realm.open({ schema: schemas.all })
 
       // Remove any failed matches if they exist
-      // const failedMatches = realm.objects(schemas.FailedIdentifiedItemSchema.name).filtered('id == $0', imageResponse.fileName)
-      const matches = realm.objects(schemas.ClassifiedResultSchema.name).filtered('id == $0', imageResponse.fileName)
-      // if (matches.length > 0) realm.write(() => realm.delete(matches))
+      const matches = realm.objects(schemas.ClassifiedResultSchema.name).filtered('image.path == $0', imageResponse.path)
       const values = matches.values()
-      // for (val of values) {
-      //   if (val.successful = false) realm.write(() => realm.delete(val))
-      //   else {
-      //     const copy = { ...item }
-      //     copy.image.base64 = imageResponse.data
-      //     this.setState({ uploading: 0 })
-      //     return this.props.navigation.navigate('DetailsScreen', copy)
-      //   }
-      // }
+      let openedMatch = false
+      for (val of values) {
+        if (val.successful === false) realm.write(() => realm.delete(val))
+        else {
+          const copy = { ...item }
+          copy.image.base64 = imageResponse.data
+          this.setState({ uploading: 0 })
+          if (openedMatch === false) this.props.navigation.navigate('DetailsScreen', copy)
+          openedMatch = true
+        }
+      }
+      if (openedMatch) return
 
       resizedImageResponse = await ImageResizer.createResizedImage(imageResponse.uri, newWidth, newHeight, 'JPEG', 100, 0, newPath)
       // const newUri = await RCTCameraRollManager.saveToCameraRoll({ uri: resizedImageResponse.path, album: 'Argus' }, 'photo')
@@ -166,8 +167,9 @@ class UploadButton extends Component {
       console.log(imageResponse.fileName)
       console.log('logged in')
       response = await axios.post(host + '/classify', formData, { onUploadProgress: this._onUploadProgress, validateStatus: () => true })
-
-      if (response.status !== 200) {
+      if (response.status === 303) {
+        throw new Error(`Insufficient Tokens`)
+      } else if (response.status !== 200) {
         console.log(response)
         throw new Error('Non 200 status code ' + response.status)
       }

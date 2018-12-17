@@ -85,7 +85,7 @@ class ServerStatusCard extends Component {
 
             newWs.onmessage = event => {
                 console.log(event.data)
-                Alert.alert('A message from your god', event.data)
+                // Alert.alert('A message from your god', event.data)
             }
     
             newWs.onerror = e => {
@@ -165,12 +165,16 @@ class CreditsCard extends Component {
         try {
             LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
             this.setState({ refilling: true })
+            await axios.post(`${this.props.host}/login`, {
+                username: this.props.login.email,
+                password: this.props.login.password
+            })
             const { data } = await axios.post(`${this.props.host}/refill`)
             LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
             this.props.updateCredits(data.new_total)
         } catch (err) {
             console.log(err)
-            Alert.alert('Error', err.message)
+            Alert.alert('Error', err.response ? (err.response.data.msg || err.message) : err.message)
         }
         this.setState({ refilling: false })
     }
@@ -225,6 +229,7 @@ export default class DashboardScreen extends Component {
         super(props)
         this.state = {
             host: '',
+            login: {},
             imagesStored: 0,
             credits: 0,
             readyState: DashboardScreen.READY_STATES.LOADING,
@@ -258,13 +263,13 @@ export default class DashboardScreen extends Component {
             const data = res.data
             if (res.status !== 200) {
                 LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
-                return this.setState({ host, readyState: DashboardScreen.READY_STATES.ERROR, errorMessage: data.msg })
+                return this.setState({ host, readyState: DashboardScreen.READY_STATES.ERROR, errorMessage: data.msg, login: loginParsed })
             }
             LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
-            this.setState({ host, imagesStored: data.history.length, credits: data.credits, readyState: DashboardScreen.READY_STATES.LOGGED_IN })
+            this.setState({ host, imagesStored: data.history.length, credits: data.credits, readyState: DashboardScreen.READY_STATES.LOGGED_IN, login: loginParsed })
         } catch (err) {
-            this.setState
             console.log('Failed to get login details', err)
+            this.setState({ readyState: DashboardScreen.READY_STATES.ERROR, errorMessage: err.message })
         }
 
     }
@@ -281,7 +286,7 @@ export default class DashboardScreen extends Component {
             this.state.readyState === DashboardScreen.READY_STATES.LOGGED_OUT ? <Text style={styles.loadingText}>please login</Text> :
             this.state.readyState === DashboardScreen.READY_STATES.LOGGED_IN ?
                 <View>
-                    <CreditsCard credits={this.state.credits} updateCredits={credits => this.setState({ credits })} host={this.state.host}/>
+                    <CreditsCard credits={this.state.credits} updateCredits={credits => this.setState({ credits })} host={this.state.host} login={this.state.login}/>
                     <PhotoStorageCard imagesStored={this.state.imagesStored} />
                 </View>
                 : <Text style={styles.loadingText}>{this.state.errorMessage}</Text> }
