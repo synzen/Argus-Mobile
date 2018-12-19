@@ -64,7 +64,7 @@ const historyNavigator = createStackNavigator({
     }
   }
 }, {
-  cardStyle: { backgroundColor: colorConstants.headerBackgroundColor }
+  cardStyle: { backgroundColor: colorConstants.headerBackgroundColor },
 })
 
 const settingsNavigator = createStackNavigator({

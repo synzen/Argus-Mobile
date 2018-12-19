@@ -127,7 +127,7 @@ export default class History extends Component {
           .then(realm => {
             this.setState({ realm })
             // const aggregated = []
-            const allObjects = realm.objects(schemas.ClassifiedResultSchema.name).filtered('user == $0', this.state.login.email).sorted('date')
+            const allObjects = realm.objects(schemas.ClassifiedResultSchema.name).filtered('user == $0', this.state.login.email).sorted('date', true)
             // const succeeded = allObjects.filtered('successful = true').sorted('date', true).values()
             // const failed = allObjects.filtered('successful = false').sorted('date', true).values()
             const allValues = allObjects.values()
@@ -262,6 +262,7 @@ export default class History extends Component {
             const currentItems = [ ...this.state.items ]
             this.setState({ items: currentItems.filter(item => item.id !== localItem.id) })
           }
+          Alert.alert('Error', err.response ? (err.response.data.msg || err.message) : err.message)
           if (++completed < items.length) return
           this.setState({ updating: false })
         })

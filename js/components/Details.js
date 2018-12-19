@@ -34,15 +34,6 @@ class Badge extends Component {
     }
 }
 
-const LightboxView = ({ navigator }) => (
-    <Lightbox navigator={navigator}>
-      <FastImage
-        style={{ height: 300, width: 300 }}
-        source={{ uri: 'http://knittingisawesome.com/wp-content/uploads/2012/12/cat-wearing-a-reindeer-hat1.jpg' }}
-      />
-    </Lightbox>
-  );
-
 export default class Details extends Component {
     static getDerivedStateFromProps (nextProps, state) {
         const nextParams = nextProps.navigation.state.params
@@ -104,9 +95,9 @@ export default class Details extends Component {
     openLink = link => Linking.canOpenURL(link).then(able => able ? Linking.openURL(link) : Alert.alert('Error', 'No applications available to open URI')).catch(console.log)
 
     changeSelectedMatch = item => {
-        Animated.timing(this.state.fadeAnim, {toValue: 0, duration: 150 }).start(() => {
+        Animated.timing(this.state.fadeAnim, {toValue: 0, duration: 100 }).start(() => {
             this.setState({ selectedMatchName: item.description, selectedMatchPercent: item.score, selectedWikipedia: item.wikipediaUrl || this.state.selectedWikipedia, selectedSummary: item.summary || this.state.selectedSummary })
-            Animated.timing(this.state.fadeAnim, {toValue: 1, duration: 150 }).start()
+            Animated.timing(this.state.fadeAnim, {toValue: 1, duration: 100 }).start()
         })
 
     }

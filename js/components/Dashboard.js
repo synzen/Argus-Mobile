@@ -171,7 +171,7 @@ class CreditsCard extends Component {
             })
             const { data } = await axios.post(`${this.props.host}/refill`)
             LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
-            this.props.updateCredits(data.new_total)
+            this.props.updateCredits(data.credits)
         } catch (err) {
             console.log(err)
             Alert.alert('Error', err.response ? (err.response.data.msg || err.message) : err.message)

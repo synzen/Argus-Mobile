@@ -141,7 +141,8 @@ class UploadButton extends Component {
       // const newUri = await RCTCameraRollManager.saveToCameraRoll({ uri: resizedImageResponse.path, album: 'Argus' }, 'photo')
 
       // Get the host
-      const host = await AsyncStorage.getItem('host')
+      const usegoogle = await AsyncStorage.getItem('usegoogle')
+      const host = usegoogle === 'true' ? 'http://54.39.185.15:3002' : await AsyncStorage.getItem('host')
       console.log('uploading to', host)
 
 
@@ -198,7 +199,7 @@ class UploadButton extends Component {
           successful: true,
           image: {
             path: imageResponse.path,
-            url: data.image.url,
+            url: `${host}/${data.image.url}`,
             width: imageResponse.width,
             height: imageResponse.height,
             sizeMB: (imageResponse.fileSize / 1000000).toFixed(2)
@@ -248,7 +249,7 @@ class UploadButton extends Component {
         successful: false,
         error: err.message,
         image: {
-            path: imageResponse.uri,
+            path: imageResponse.path,
             width: imageResponse.width,
             height: imageResponse.height,
             sizeMB: (imageResponse.fileSize / 1000000).toFixed(2)
@@ -268,7 +269,6 @@ class UploadButton extends Component {
         console.log('saved to failures')
         console.log(err.response)
         this.setState({ uploading: 0 })
-        console.log('HEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE2')
         Alert.alert('Uh oh!', err.response ? err.response.data.msg : err.message + '\n\nYou can try to upload again at a later time.')
       })
       .catch(realmErr => {
@@ -277,7 +277,6 @@ class UploadButton extends Component {
         this.dispatchToHistoryScreen('classifiedResults', undefined)
         this.setState({ uploading: 0 })
         console.log('realm pipeline err',  err)
-        console.log('HEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE')
         Alert.alert('Uh oh!', err.response ? err.response.data.msg : err.message)
 
       })

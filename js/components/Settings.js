@@ -6,6 +6,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import Dialog from "react-native-dialog"
 import {
   Alert,
+  Switch,
   AsyncStorage,
   Text,
   TouchableHighlight,
@@ -42,18 +43,32 @@ class SettingsItem extends Component {
   }
 }
 
-function List (props) {
-  return (
-    <View>
-      {
-        props.items.map(item => {
-          return (
-            <TouchableHighlight key={item.text} underlayColor='#E0E0E0' activeOpacity={1} style={styles.dialogOption} onPress={item.onPress ? item.onPress : () => {}}><Text>{item.text}</Text></TouchableHighlight>
-          )
-        })
-      }
-    </View>
-  )
+class SettingsSwitch extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+    }
+  }
+
+  _click () {
+  }
+
+  render () {
+    // Each must have an onPress function for the highlight effect to appear
+    return (
+      <TouchableHighlight style={styles.settingsItem} onPress={ () => this.props.onPress ? this.props.onPress() : undefined } underlayColor={colorConstants.headerBackgroundColorVeryLight} activeOpacity={1}>
+        <View style={styles.settingsItemContainer}>
+          <Icon name={ this.props.icon } size={30} style={styles.settingsItemTextContainer} color='white'/>
+          <View style={styles.settingsItemTextContainer}>
+              <Text style={styles.settingsItemTitle}>{ this.props.title }</Text>
+              <Text style={styles.settingsItemValue}>{ this.props.value }</Text>
+          </View>
+          { this.props.children }
+        </View>
+      </TouchableHighlight>
+
+    )
+  }
 }
 
 export default class Settings extends Component {
@@ -69,12 +84,13 @@ export default class Settings extends Component {
             focus: CameraDefaults.focus,
             camera: CameraDefaults.camera,
             dialog: false,
-            hostDialog: false
+            hostDialog: false,
+            useGoogle: undefined
         }
-        AsyncStorage.multiGet(['camera.flash', 'camera.focus', 'camera.camera', 'host']).then(vals => {
+        AsyncStorage.multiGet(['usegoogle', 'camera.focus', 'camera.camera', 'host']).then(vals => {
           vals.map(item => {
             if (!item[1]) return
-            if (item[0] === 'camera.flash') this.setState({ flash: item[1] })
+            if (item[0] === 'usegoogle') this.setState({ useGoogle: item[1] })
             else if (item[0] === 'camera.focus') this.setState({ focus: item[1] })
             else if (item[0] === 'camera.camera') this.setState({ focus: item[1] })
             else if (item[0] === 'host') this.setState({ host: item[1] })
@@ -87,6 +103,14 @@ export default class Settings extends Component {
       AsyncStorage.setItem('host', this.state.host).catch(err => {
           Alert.alert('Failed to save host to storage', err.message, [ { text: 'OK' }])
       })
+    }
+    
+    switchHosts = () => {
+      AsyncStorage.setItem('usegoogle', this.state.useGoogle === 'true' ? 'false' : 'true')
+      .then(() => {
+        this.setState({ useGoogle: this.state.useGoogle === 'true' ? 'false' : 'true' })
+      })
+      .catch(err => Alert.alert('Error', err.message))
     }
     
     render() {
@@ -113,7 +137,8 @@ export default class Settings extends Component {
 
             {/* <SettingsItem title='Flash' value={'on'}></SettingsItem> */}
             <Text style={ styles.category }>Miscellaneous</Text>
-
+            <SettingsItem icon='access-point' title='Switch Hosts' value={this.state.useGoogle === 'true' ? 'Google' : 'Our Server'} onPress={this.switchHosts}>
+            </SettingsItem>
             <SettingsItem icon='information-outline' title='About' value='v0.0.1' onPress={() => Alert.alert('nigga plz')}>
             
             </SettingsItem>
@@ -146,7 +171,8 @@ const styles = StyleSheet.create({
     },
     category: {
       paddingHorizontal: 25,
-      paddingTop: 20,
+      paddingVertical: 15,
+      marginTop: 10,
       fontWeight: 'bold',
       borderTopWidth: 1,
       borderTopColor: '#bdbdbd',
@@ -157,7 +183,7 @@ const styles = StyleSheet.create({
       flexDirection: 'column',
       justifyContent: 'center',
       // alignItems: 'center',
-      height: 75,
+      height: 70,
       // paddingVertical: 15,
       paddingHorizontal: 25,
 
