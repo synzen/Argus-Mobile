@@ -208,6 +208,7 @@ export default class History extends Component {
             const unuploadedItem = history.filter(historyItem => historyItem.id === item.id).length === 0
             if (unuploadedItem) {
               if (item.successful === false) continue // Keep failed items
+              const realm = this.state.realm
               realm.write(() => {
                 realm.delete(realm.objects(schemas.ClassifiedResultSchema.name).filtered('id = $0', item.id))
               })
