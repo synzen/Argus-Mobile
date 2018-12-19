@@ -203,9 +203,25 @@ export default class History extends Component {
         const newItems = []
         if (history.length === 0) this.deleteItems()
         else {
+          for (const item of existingItems) {
+            // Delete relevant items from the database
+            const unuploadedItem = history.filter(historyItem => historyItem.id === item.id).length === 0
+            if (unuploadedItem) {
+              if (item.successful === false) continue // Keep failed items
+              realm.write(() => {
+                realm.delete(realm.objects(schemas.ClassifiedResultSchema.name).filtered('id = $0', item.id))
+              })
+              const newStateItems = this.state.items.filter(cur => cur.id !== item.id)
+              this.setState({ items: newStateItems })
+              // this.setState({ items: items.filter(cur => cur.id !== item.id), updating: false })
+            }
+          } 
           for (const item of history) {
+            // Add relevant items
             const newItem = existingItems.filter(existing => existing.id === item.id).length === 0
-            if (!newItem) continue
+            if (!newItem) {
+              continue
+            }
             item.image.sizeMB = (item.image.size / 1000).toFixed(2)
             item.image.url = this.state.host + '/' + item.image.url
             const formattedItem = {
@@ -216,18 +232,21 @@ export default class History extends Component {
               date: parseResponse.parseDateString(item.dateCreated),
               classifications: item.predictions
             }
-            newItems.push(formattedItem)
+            const newStateItems = [ ...this.state.items ]
+            newStateItems.push(formattedItem)
+            // newItems.push(formattedItem)
             const realm = this.state.realm
             realm.write(() => {
               realm.create(schemas.ClassifiedResultSchema.name, formattedItem)
             })
+            this.setState({ items: newStateItems })
           }
         }
         this.setState({ updating: false })
-        if (newItems.length > 0) {
-          LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
-          this.setState({ items: [ ...newItems,  ...this.state.items ] })
-        }
+        // if (newItems.length > 0) {
+          // LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+          // this.setState({ items: [ ...newItems,  ...this.state.items ] })
+        // }
       })
       .catch(err => {
         this.setState({ updating: false })
@@ -255,12 +274,13 @@ export default class History extends Component {
           this.setState({ updating: false })
         })
         .catch(err => {
+          console.log(err.response)
           if (err.response && err.response.status === 400) {
             realm.write(() => {
               realm.delete(realm.objects(schemas.ClassifiedResultSchema.name).filtered('id = $0', localItem.id))
             })
             const currentItems = [ ...this.state.items ]
-            this.setState({ items: currentItems.filter(item => item.id !== localItem.id) })
+            return this.setState({ items: currentItems.filter(item => item.id !== localItem.id) })
           }
           Alert.alert('Error', err.response ? (err.response.data.msg || err.message) : err.message)
           if (++completed < items.length) return
