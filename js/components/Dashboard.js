@@ -157,23 +157,28 @@ class CreditsCard extends Component {
         super(props)
 
         this.state = {
-            refilling: false
+            refilling: false,
+            credits: this.props.credits
         }
+
     }
 
     refill = async () => {
         try {
             LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
             this.setState({ refilling: true })
+            console.log(this.props.login)
             await axios.post(`${this.props.host}/login`, {
                 username: this.props.login.email,
                 password: this.props.login.password
             })
             const { data } = await axios.post(`${this.props.host}/refill`)
+            console.log(data)
             LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
-            this.props.updateCredits(data.credits)
+            // this.props.updateCredits(data.credits)
+            this.setState({ credits: data.credits })
         } catch (err) {
-            console.log(err)
+            console.log(err.response)
             Alert.alert('Error', err.response ? (err.response.data.msg || err.message) : err.message)
         }
         this.setState({ refilling: false })
@@ -183,7 +188,7 @@ class CreditsCard extends Component {
         return (
             <Card title='Tokens Available' containerStyle={styles.cardContainer} titleStyle={{color: 'white'}}>
                 <View style={styles.tokensContainer}>
-                    <Text style={styles.tokensText}>{this.state.refilling ? '...' : this.props.credits}</Text>
+                    <Text style={styles.tokensText}>{this.state.refilling ? '...' : this.state.credits}</Text>
                     { this.state.refilling ? null : 
                         <TouchableOpacity style={styles.tokensButtonTouchable} onPress={this.refill}>
                             <Icon raised name='add' size={20} containerStyle={{backgroundColor: colorConstants.headerBackgroundColorVeryLight}} color='white' />
@@ -213,14 +218,16 @@ export default class DashboardScreen extends Component {
         if (!params) return null
         if (params.email === '') {
             // LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
-            return { email: '', password: '', readyState: DashboardScreen.READY_STATES.LOGGED_OUT }
+            return { login: { email: '', password: '' }, readyState: DashboardScreen.READY_STATES.LOGGED_OUT }
         }
+        const login = {}
         const toReturn = {}
-        if (params.email && state.email !== params.email) toReturn.email = params.email
-        if (params.password && state.password !== params.password) toReturn.password = params.password
+        if (params.email && state.email !== params.email) login.email = params.email
+        if (params.password && state.password !== params.password) login.password = params.password
         if (params.credits && state.credits !== params.credits) toReturn.credits = params.credits
         if (params.imagesStored && state.imagesStored !== params.imagesStored) toReturn.imagesStored = params.imagesStored
-        if (Object.keys(toReturn).length === 0) return null
+        if (Object.keys(login).length === 0) return null
+        toReturn.login = login
         // LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
         return { ...toReturn, readyState: DashboardScreen.READY_STATES.LOGGED_IN }
     }
@@ -282,8 +289,8 @@ export default class DashboardScreen extends Component {
                 <StatusBar backgroundColor='black' />
 
             <ServerStatusCard />
-            { this.state.readyState === DashboardScreen.READY_STATES.LOADING ? <Text style={styles.loadingText}> Loading...</Text> :
-            this.state.readyState === DashboardScreen.READY_STATES.LOGGED_OUT ? <Text style={styles.loadingText}>please login</Text> :
+            { this.state.readyState === DashboardScreen.READY_STATES.LOADING ? <ActivityIndicator size='large' style={styles.loadingActivityIndicator} color={colorConstants.blue}/> :
+            this.state.readyState === DashboardScreen.READY_STATES.LOGGED_OUT ? <Text style={styles.loadingText}>Please Login</Text> :
             this.state.readyState === DashboardScreen.READY_STATES.LOGGED_IN ?
                 <View>
                     <CreditsCard credits={this.state.credits} updateCredits={credits => this.setState({ credits })} host={this.state.host} login={this.state.login}/>
@@ -297,6 +304,10 @@ export default class DashboardScreen extends Component {
 
   
 const styles = StyleSheet.create({
+    loadingActivityIndicator: {
+        alignSelf: 'center',
+        marginTop: 25
+    },
     loadingText: {
         color: colorConstants.textPrimary,
         alignSelf: 'center',

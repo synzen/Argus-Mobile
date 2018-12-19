@@ -163,7 +163,11 @@ export default class Login extends Component {
             await AsyncStorage.setItem('login', JSON.stringify({ email: this.state.email, password: this.state.password }))
             globalState.email = this.state.email
             globalState.password = this.state.password
-            this.sendDataToRelevantRoutes({ email: this.state.email, password: this.state.password, credits: res.data.credits, imagesStored: 0 })
+            const paramsData = { email: this.state.email, password: this.state.password, credits: res.data.credits, imageStored: 0 }
+            this.sendDataToRelevantRoutes(paramsData, 'SideMenu')
+            this.sendDataToRelevantRoutes(paramsData, 'DashboardScreen')
+            this.sendDataToRelevantRoutes({ classifiedResults: formattedClassifiedItems,  loggedOut: false }, 'HistoryScreen')
+            this.sendDataToRelevantRoutes({ classifiedResults: undefined }, 'HistoryScreen')
             this.props.navigation.goBack()
             Alert.alert('Congratulations!', `You have created a new account, ${this.state.email}!`)
         } catch (err) {
