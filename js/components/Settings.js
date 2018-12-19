@@ -43,34 +43,6 @@ class SettingsItem extends Component {
   }
 }
 
-class SettingsSwitch extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-    }
-  }
-
-  _click () {
-  }
-
-  render () {
-    // Each must have an onPress function for the highlight effect to appear
-    return (
-      <TouchableHighlight style={styles.settingsItem} onPress={ () => this.props.onPress ? this.props.onPress() : undefined } underlayColor={colorConstants.headerBackgroundColorVeryLight} activeOpacity={1}>
-        <View style={styles.settingsItemContainer}>
-          <Icon name={ this.props.icon } size={30} style={styles.settingsItemTextContainer} color='white'/>
-          <View style={styles.settingsItemTextContainer}>
-              <Text style={styles.settingsItemTitle}>{ this.props.title }</Text>
-              <Text style={styles.settingsItemValue}>{ this.props.value }</Text>
-          </View>
-          { this.props.children }
-        </View>
-      </TouchableHighlight>
-
-    )
-  }
-}
-
 export default class Settings extends Component {
     static navigationOptions = {
       title: 'Settings'
