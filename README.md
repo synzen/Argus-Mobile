@@ -1,4 +1,4 @@
-App temporarily named "argus"
+## Argus Mobile
 
 To set up the development environment, Android Studio and the Android Studio mobile emulator must be running. 
 
