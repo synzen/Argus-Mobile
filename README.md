@@ -1,4 +1,18 @@
-## Argus Mobile
+# Argus Mobile
+
+Upload images to be identified through object recognition through our service. After the image is identified: 
+- A brief summary of the Wikipedia page as well as the link is provided
+- All potential matches are shown with match percentages
+
+All identifications are stored in the app's gallery so you can look at previous identifications.
+
+The source of the API as well as the web UI is available at https://github.com/ExcelE/horus-scope.
+
+## Preview
+
+![](https://i.imgur.com/jXnmJOs.jpg)
+
+## Development
 
 To set up the development environment, Android Studio and the Android Studio mobile emulator must be running. 
 
